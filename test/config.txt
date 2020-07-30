@@ -1,0 +1,4 @@
+//
+sample : test
+fq1 : test_1.fq.gz
+fq2 : test_2.fq.gz
