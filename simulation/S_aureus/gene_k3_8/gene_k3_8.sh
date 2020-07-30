@@ -1,0 +1,9 @@
+#	3	/mnt/disk2_workspace/wangshuai/00.strain/03.species/S_aureus/ref/GCF_001019395.1_ASM101939v1_genomic.fna	0.46	/mnt/disk2_workspace/wangshuai/00.strain/03.species/S_aureus/ref/GCF_000284535.1_ASM28453v1_genomic.fna	0.32	/mnt/disk2_workspace/wangshuai/00.strain/03.species/S_aureus/ref/GCF_000462955.1_ASM46295v1_genomic.fna	0.22	
+/home/wangshuai/softwares/art_bin_MountRainier/art_illumina -i /mnt/disk2_workspace/wangshuai/00.strain/03.species/S_aureus/ref/GCF_001019395.1_ASM101939v1_genomic.fna -l 100 -m 350 -s 50 -ss HS20 --fcov 46 --noALN -o /mnt/disk2_workspace/wangshuai/00.strain/03.species/S_aureus/reads/gene_k3_8/gene_k3_8_strain0_ 
+/home/wangshuai/softwares/art_bin_MountRainier/art_illumina -i /mnt/disk2_workspace/wangshuai/00.strain/03.species/S_aureus/ref/GCF_000284535.1_ASM28453v1_genomic.fna -l 100 -m 350 -s 50 -ss HS20 --fcov 32 --noALN -o /mnt/disk2_workspace/wangshuai/00.strain/03.species/S_aureus/reads/gene_k3_8/gene_k3_8_strain1_ 
+/home/wangshuai/softwares/art_bin_MountRainier/art_illumina -i /mnt/disk2_workspace/wangshuai/00.strain/03.species/S_aureus/ref/GCF_000462955.1_ASM46295v1_genomic.fna -l 100 -m 350 -s 50 -ss HS20 --fcov 22 --noALN -o /mnt/disk2_workspace/wangshuai/00.strain/03.species/S_aureus/reads/gene_k3_8/gene_k3_8_strain2_ 
+cat /mnt/disk2_workspace/wangshuai/00.strain/03.species/S_aureus/reads/gene_k3_8/gene_k3_8*_1.fq>/mnt/disk2_workspace/wangshuai/00.strain/03.species/S_aureus/reads/gene_k3_8/gene_k3_8_1.fq
+cat /mnt/disk2_workspace/wangshuai/00.strain/03.species/S_aureus/reads/gene_k3_8/gene_k3_8*_2.fq>/mnt/disk2_workspace/wangshuai/00.strain/03.species/S_aureus/reads/gene_k3_8/gene_k3_8_2.fq
+rm /mnt/disk2_workspace/wangshuai/00.strain/03.species/S_aureus/reads/gene_k3_8/*strain*
+ gzip -f /mnt/disk2_workspace/wangshuai/00.strain/03.species/S_aureus/reads/gene_k3_8/*fq
+
