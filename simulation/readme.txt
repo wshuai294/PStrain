@@ -8,3 +8,4 @@ These are the scripts to generate simulations. Please change the path of softwar
 ## reads_error : This folder saves the scripts to generate mixtures with different reads error.
 ## S_aureus : This folder saves the scripts to generate mixtures with S. aureus. strains.
 ## reference_set : The reference set to generate mixtures.
+## contaminations: The scripts in this folder are used to generate contamination reads.
