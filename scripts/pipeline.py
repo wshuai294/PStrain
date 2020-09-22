@@ -32,7 +32,7 @@ def extract_ref(species_set,refdir,dbdir):
     # dbdir='../db_v20/'
     gene_dict={}
     # species_set=['s__Escherichia_coli']
-    for line in gzip.open(dbdir+'species_markers.txt.gz','rt'):
+    for line in gzip.open(dbdir+'/species_markers.txt.gz','rt'):
         line=line.strip()
         array=line.split()
         for sp in species_set:
@@ -40,7 +40,7 @@ def extract_ref(species_set,refdir,dbdir):
                 gene_dict['>'+array[0]]=sp
     flag=False
     merged_fh=open(refdir+'/merged_ref.fa','w')
-    for line in gzip.open(dbdir+'marker_gene.fna.gz','rt'):
+    for line in gzip.open(dbdir+'/marker_gene.fna.gz','rt'):
         line=line.strip()       
         if line[0] == '>':
             if line in gene_dict.keys() and not re.search(',',line):
@@ -360,7 +360,7 @@ def single_run(sample,outdir,fq1,fq2,arg_list,popu):
                         filename=outdir+'/run.log',  
                         filemode='w')  
     vcffile,bamfile='%s/mapped.vcf.gz'%(mapdir),'%s/mapped.bam'%(mapdir)
-
+    print ('single run start')
     if os.path.isfile(vcffile) and os.path.isfile(bamfile):
         # run_metaphlan2(metaphlan2dir,metaphlan2,fq1,fq2,nproc,bowtie2)
         species_set,sp_ra=read_metaphlan2(metaphlan2dir)
@@ -374,6 +374,7 @@ def single_run(sample,outdir,fq1,fq2,arg_list,popu):
     else:
         run_metaphlan2(metaphlan2dir,metaphlan2,fq1,fq2,nproc,bowtie2)
         species_set,sp_ra=read_metaphlan2(metaphlan2dir)
+        print ('Start extracting ref.')
         extract_ref(species_set,refdir,dbdir)
         index_ref(refdir,picard,samtools,bowtie2_build)
         bowtie2_map(bowtie2,samtools,refdir,mapdir,fq1,fq2,nproc,picard)    
