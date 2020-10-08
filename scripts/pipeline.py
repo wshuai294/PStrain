@@ -360,7 +360,6 @@ def single_run(sample,outdir,fq1,fq2,arg_list,popu):
                         filename=outdir+'/run.log',  
                         filemode='w')  
     vcffile,bamfile='%s/mapped.vcf.gz'%(mapdir),'%s/mapped.bam'%(mapdir)
-    print ('single run start')
     if os.path.isfile(vcffile) and os.path.isfile(bamfile):
         # run_metaphlan2(metaphlan2dir,metaphlan2,fq1,fq2,nproc,bowtie2)
         species_set,sp_ra=read_metaphlan2(metaphlan2dir)
@@ -374,7 +373,6 @@ def single_run(sample,outdir,fq1,fq2,arg_list,popu):
     else:
         run_metaphlan2(metaphlan2dir,metaphlan2,fq1,fq2,nproc,bowtie2)
         species_set,sp_ra=read_metaphlan2(metaphlan2dir)
-        print ('Start extracting ref.')
         extract_ref(species_set,refdir,dbdir)
         index_ref(refdir,picard,samtools,bowtie2_build)
         bowtie2_map(bowtie2,samtools,refdir,mapdir,fq1,fq2,nproc,picard)    
