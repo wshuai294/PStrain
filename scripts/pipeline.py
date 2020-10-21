@@ -147,11 +147,14 @@ def depth_of_each_species(mapdir):
     for species in dict_species_depth.keys():
         dict_species_depth[species] = np.mean(np.array(dict_species_depth[species]))
     return (dict_species_depth)
-def copy_number(mapdir,species_dp):
+def copy_number(mapdir,species_dp,samtools):
     gene_depth=[]
     chrom=''
     dp_set=[0]
-    for line in open('%s/mapped.depth'%(mapdir)):
+    depth_file = '%s/mapped.depth'%(mapdir)
+    if not os.path.isfile(depth_file):
+        os.system('%s depth %s/mapped.bam >%s/mapped.depth'%(samtools,mapdir,mapdir))
+    for line in open(depth_file, 'r'):
         line=line.strip()
         array=line.split()
         if array[0] != chrom:
@@ -188,7 +191,7 @@ def copy_number(mapdir,species_dp):
         if gene[1]<mean_std[0]-num*mean_std[1] or gene[1] > mean_std[0]+num*mean_std[1]:#or len(gene[2])<100 or max(gene[2])>200 :
             removed_gene.append(gene[0])
     return removed_gene,low_dp_sp
-def delta(mapdir,extractHAIRS,data,bamfile):
+def delta(mapdir,data,bamfile):
     
     for i in range(len(data)):
         # share_reads=[]
@@ -327,7 +330,7 @@ def single_run(sample,outdir,fq1,fq2,arg_list,popu):
     samtools=arg_list[5]
     bowtie2_build=arg_list[6]
     bowtie2=arg_list[7]
-    extractHAIRS=arg_list[8]
+    # extractHAIRS=arg_list[8]
     gatk=arg_list[9]
     metaphlan2=arg_list[10]
     weight=arg_list[12]
@@ -353,7 +356,7 @@ def single_run(sample,outdir,fq1,fq2,arg_list,popu):
         os.system('mkdir '+resultdir)
     if not os.path.exists(resultdir+'/seq/'):
         os.system('mkdir '+resultdir+'/seq/')
-    
+    print ('##############')
     logging.basicConfig(level=logging.DEBUG,  
                         format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',  
                         datefmt='%a, %d %b %Y %H:%M:%S',  
@@ -361,29 +364,26 @@ def single_run(sample,outdir,fq1,fq2,arg_list,popu):
                         filemode='w')  
     vcffile,bamfile='%s/mapped.vcf.gz'%(mapdir),'%s/mapped.bam'%(mapdir)
     if os.path.isfile(vcffile) and os.path.isfile(bamfile):
-        # run_metaphlan2(metaphlan2dir,metaphlan2,fq1,fq2,nproc,bowtie2)
         species_set,sp_ra=read_metaphlan2(metaphlan2dir)
-        # extract_ref(species_set,refdir,dbdir)
-        # index_ref(refdir,picard,samtools,bowtie2_build)
-        # bowtie2_map(bowtie2,samtools,refdir,mapdir,fq1,fq2,nproc,picard)    
-        removed_gene,low_dp_sp=copy_number(mapdir,species_dp)
+        removed_gene,low_dp_sp=copy_number(mapdir,species_dp,samtools)
         dict_species_depth = depth_of_each_species(mapdir)
-        # os.system('rm %s/mapped.depth'%(mapdir))
-        # call_snp(gatk,mapdir,refdir,bamfile)
     else:
         run_metaphlan2(metaphlan2dir,metaphlan2,fq1,fq2,nproc,bowtie2)
         species_set,sp_ra=read_metaphlan2(metaphlan2dir)
         extract_ref(species_set,refdir,dbdir)
         index_ref(refdir,picard,samtools,bowtie2_build)
         bowtie2_map(bowtie2,samtools,refdir,mapdir,fq1,fq2,nproc,picard)    
-        removed_gene,low_dp_sp=copy_number(mapdir,species_dp)
+        removed_gene,low_dp_sp=copy_number(mapdir,species_dp,samtools)
         dict_species_depth = depth_of_each_species(mapdir)
         call_snp(gatk,mapdir,refdir,bamfile) 
-
+    print ('......................................')
     data,alt_homo,to_sort,hete_species=read_vcf(mapdir,removed_gene,snp_dp,qual,vcffile, dict_species_depth)
-    data=delta(mapdir,extractHAIRS,data,bamfile)  #add delta_set
+    print ('after reads vcf, start delta')
+    data=delta(mapdir,data,bamfile)  #add delta_set
+    print ('start profiling.')
     species_alpha,species_seq,species_snp=profiling(data,weight,lambda1,lambda2,popu,elbow,low_dp_sp)
     output(species_alpha,species_seq,species_snp,species_set,sp_ra,alt_homo,to_sort,resultdir,hete_species,low_dp_sp)
+    print ('Sample %s is done.'%(sample))
     logging.info('Sample %s is done.'%(sample))
 def output(species_alpha,species_seq,species_snp,species_set,sp_ra,alt_homo,to_sort,resultdir,hete_species,low_dp_sp):
     ra_file=open(resultdir+'/strain_RA.txt','w')
@@ -406,7 +406,7 @@ def output(species_alpha,species_seq,species_snp,species_set,sp_ra,alt_homo,to_s
                 print ('str-'+str(i+1),end='\t',file=sequence)
         else:
             print ('Consensus_Seq',end='\t',file=sequence)
-        print ('',file=sequence)
+        print ('',end='\n',file=sequence)
         he_num=len(snp)
         he=0
         ho=0       
@@ -424,13 +424,15 @@ def output(species_alpha,species_seq,species_snp,species_set,sp_ra,alt_homo,to_s
                     for j in range(len(alpha)):
                         print (1,end='\t',file=sequence)   
                     ho+=1
-                print ('',file=sequence)  
+                print ('',file=sequence) 
+                point[0] = point[0] + '|' +  species
         sequence.close()
+    print ('hete species is done')
     finish_species=hete_species[:]
     #the species that only have 1/1 snvs
     ####################################
     pre_species=''
-    # print (to_sort)
+    # print ('relative abundance', sp_ra, species_set, hete_species)
     for point in to_sort:
         # match=re.search('(.*)(\|%s)'%(species),point[0])
         match=re.search('(.*\|)(.*?)$', point[0])
@@ -438,20 +440,24 @@ def output(species_alpha,species_seq,species_snp,species_set,sp_ra,alt_homo,to_s
             species=match.group(2)   
             new_match=re.search('(.*)(\|%s)'%(species),point[0])  
             point[0]=new_match.group(1)
-            # print ( point)
-            if species not in hete_species:
-                if species != pre_species:
-                    finish_species.append(species)
-                    index=species_set.index(species)
-                    ra=sp_ra[index]
-                    pre_species=species
-                    print (resultdir+'/seq/'+species+'_seq.txt')
-                    sequence=open(resultdir+'/seq/'+species+'_seq.txt','w')
-                    print ('# Gene\tLocus\tRef\tAlt\tstr-1',end='',file=sequence)
-                    print (species,ra,'str-1','1.0',file=ra_file)
-                for info in point:
-                    print (info,end='\t',file=sequence)
-                print ('1',file=sequence)  
+            if species in hete_species:
+                continue
+            if species != pre_species:
+                finish_species.append(species)
+                if species not in species_set:
+                    print ('There is no species called %s!!'%(species))
+                index=species_set.index(species)
+                ra=sp_ra[index]
+                # print (species, index, ra)
+                pre_species=species
+                # print (resultdir+'/seq/'+species+'_seq.txt')
+                sequence=open(resultdir+'/seq/'+species+'_seq.txt','w')
+                print ('# Gene\tLocus\tRef\tAlt\tstr-1',end='\n',file=sequence)
+                print (species,ra,'str-1','1.0',ra,file=ra_file)
+            for info in point:
+                print (info,end='\t',file=sequence)
+            print ('1',file=sequence)  
+    print ('homo species is done')
     #the species that have no snv
     for index in range(len(species_set)):
         species=species_set[index]
@@ -461,6 +467,8 @@ def output(species_alpha,species_seq,species_snp,species_set,sp_ra,alt_homo,to_s
             sequence=open(resultdir+'/seq/'+species+'_seq.txt','w')
             print ('# Gene\tLocus\tRef\tAlt\tNo_Valid_SNV',end='',file=sequence)
             print (species,ra,'No_Valid_SNV','1.0',ra,file=ra_file)
+            sequence.close()
+    print ('output is done')
 def multi_samples(outdir,cfgfile,arg_list,popu):
 
     if not os.path.exists(outdir):
