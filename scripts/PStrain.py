@@ -20,10 +20,11 @@ fq1: [forward reads fastq]
 fq2: [reverse/mate reads fastq]
 ...
 
-Help information can be found by %(prog)s -h/--help, config file format for single end reads , and additional information can be found in README.MD or www.xxx.com.
+Help information can be found by %(prog)s -h/--help, config file format for single end reads , and additional information can be found\
+ in README.MD or https://github.com/wshuai294/PStrain.
 """
 scripts_dir=sys.path[0]+'/'
-parser = ArgumentParser(description="PStrain: identify strains in metagenomics reads.",prog='python3 PStrain.py',usage=Usage)
+parser = ArgumentParser(description="PStrain: profile strains in shotgun metagenomic sequencing reads.",prog='python3 PStrain.py',usage=Usage)
 optional=parser._action_groups.pop()
 required=parser.add_argument_group('required arguments')
 #necessary parameter

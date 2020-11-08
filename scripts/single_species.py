@@ -3,6 +3,7 @@
 from argparse import ArgumentParser
 from my_imports import *
 import pipeline
+import logging
 
 Usage = \
 """%(prog)s [options] -b/--bam <bam file> -v/--vcf <vcf file> -o/--outdir <output directory>
@@ -10,10 +11,10 @@ Usage = \
 Before using this script, you should map the reads to your reference, and call SNPs. Then you can provide the bam and vcf file. \
 Once you have the prior knowledge of the strains number, you can provie it the to script by -k/--strainsNum parameter. Otherwise,\
 it will choose the strains number by elbow method. 
-Help information can be found by %(prog)s -h/--help, additional information can be found in README.MD or www.xxx.com.
+Help information can be found by %(prog)s -h/--help, additional information can be found in README.MD or https://github.com/wshuai294/PStrain.
 """
 scripts_dir=sys.path[0]+'/'
-parser = ArgumentParser(description="PStrain: identify strains in samples with single species.",prog='python3 single_species.py',usage=Usage)
+parser = ArgumentParser(description="PStrain: phase strains in samples with single species.",prog='python3 single_species.py',usage=Usage)
 optional=parser._action_groups.pop()
 required=parser.add_argument_group('required arguments')
 #necessary parameter
@@ -27,7 +28,7 @@ optional.add_argument("--snp_dp",help="The minimum depth of SNPs to be considere
     dest='snp_dp',metavar='',default=6, type=int)
 #added parameters
 optional.add_argument("--prior",help="The file of prior knowledge of genotype frequencies in the population.",dest='prior',metavar='',\
-    default=scripts_dir+'/prior_beta.pickle')
+    default=scripts_dir+'../db/prior_beta.pickle')
 optional.add_argument("--elbow",help="The cutoff of elbow method while identifying strains number. \
 If the loss reduction ratio is less than the cutoff, then the strains number is determined.",\
     dest='elbow',metavar='',default=0.24, type=float)
@@ -44,8 +45,62 @@ parser._action_groups.append(optional)
 args = parser.parse_args()
 
 
+def read_vcf(mapdir,removed_gene,snp_dp,qual,vcffile):
+    # vcffile='%s/mapped.vcf.gz'%(mapdir)
+    if not os.path.exists(mapdir):
+        os.system('mkdir '+mapdir)
+    hete_species=[]
+    snp_list,beta_set=[],[]
+    locus_list=[]
+    alt_homo=[]
+    myvcf=VariantFile(vcffile)
+    vcf_out=VariantFile('%s/mapped.filter.vcf'%(mapdir),'w',header=myvcf.header)
+    sample=list(myvcf.header.samples)[0]
+    data=[]
+    species=''
+    to_sort=[]
+    flag=False
+    for record in myvcf.fetch():
+        if record.info['DP'] <1:
+            continue
+        geno=record.samples[sample]['GT']        
+        depth=record.samples[sample]['AD']
+        dp=depth[0]+depth[1]   
+        # my_snp_dp = snp_dp * dict_species_depth[record.chrom.split('|')[-1]]
+        # print (my_snp_dp)
+        if len(record.ref)==1 and len(record.alts)==1 and len(record.alts[0])==1 and dp>=snp_dp  and record.qual >= qual and record.chrom not in removed_gene:
+        # if len(record.ref)==1 and len(record.alts)==1 and len(record.alts[0])==1 and dp>=snp_dp  and record.qual >= qual and record.chrom not in removed_gene:
+            snp=[record.chrom,str(record.pos),record.ref,record.alts[0]]
+            if geno==(0,1):
+                flag=True
+                to_sort.append(snp)
+                vcf_out.write(record)
+                array=record.chrom.split('|')
+                sp=array[-1]
+                if sp != species:
+                    hete_species.append(species)
+                    data.append([species,snp_list,beta_set])
+                    species=sp
+                    snp_list=[]
+                    beta_set=[]
+                beta=[depth[0],depth[1]]  # depth of 0 and 1
+                # beta=np.array(depth)
+                snp_list.append(snp)
+                beta_set.append(beta)
+                locus_list.append(int(record.pos))
+            elif geno==(1,1):
+                to_sort.append(snp)
+                alt_homo.append(snp)
+    hete_species.append(species)
+    data.append([species,snp_list,beta_set])
+    data=data[1:]
+    hete_species=hete_species[1:]
+    logging.info('SNPs is filtered.')
+    if flag == False:
+        logging.warning('There is no heterozygous loci at all.')
+    return data,alt_homo,to_sort,hete_species
 
-def read_vcf(vcffile,outdir,snp_dp):
+def read_vcf_bk(vcffile,outdir,snp_dp):
     if not os.path.exists(outdir):
         os.system('mkdir '+outdir)
     snp_list,beta_set=[],[]
@@ -140,8 +195,10 @@ if __name__ == "__main__":
             popu = pickle.load(f)
         f.close()
         print ('Database is loaded.')
-        data,alt_homo,to_sort,hete_species=pipeline.read_vcf(outdir,[],snp_dp,qual,vcffile)
-        data=pipeline.delta(outdir,extractHAIRS,data,bamfile)
+        # data,alt_homo,to_sort,hete_species=pipeline.read_vcf(outdir,[],snp_dp,qual,vcffile)
+        data,alt_homo,to_sort,hete_species=read_vcf(outdir,[],snp_dp,qual,vcffile)
+        # data=pipeline.delta(outdir,extractHAIRS,data,bamfile)
+        data=pipeline.delta(outdir,data,bamfile)
         sp=data[0]
         species=sp[0]
         snp_list=sp[1]

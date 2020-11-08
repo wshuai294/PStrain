@@ -33,7 +33,8 @@ PStrain relies on these softwares, we have uploaded the binary file of them to t
 ## Basic Usage  
 
 ```
-usage: python3 PStrain.py [options] -c/--conf <config file> -o/--outdir <output directory>
+Usage: python3 PStrain.py [options] -c/--conf <config file> -o/--outdir <output directory>
+Example: python3 PStrain.py -p 10 -n 8 --similarity 0.95 -o ./FMT_new -c old.config --dbdir /home/wangshuai/strain/00.simulation/15.needle/db --prior /home/wangshuai/strain/00.simulation/15.needle/db/prior_beta.pickle
 ```
 The config file should follow the format, for Pair-end reads:
 ```
@@ -119,7 +120,7 @@ Gene, Locus, Ref, Alt clolumns represent the locus, following columns means the 
 ## Full command-line options
 
 ```
-PStrain: identify strains in metagenomics reads.
+PStrain: profile strains in shotgun metagenomic sequencing reads.
 
 required arguments:
   -c , --conf       The configuration file of the input samples.
@@ -133,12 +134,24 @@ optional arguments:
                     with bowtie2(default is 1).
   -w , --weight     The weight of genotype frequencies while computing loss,
                     then the weight of linked read type frequencies is 1-w.
+                    The value is between 0~1. (default is 0.0)
+  --lambda1         The weight of prior knowledge while rectifying genotype
+                    frequencies. The value is between 0~1. (default is 0.0)
+  --lambda2         The weight of prior estimation while rectifying second
+                    order genotype frequencies. The value is between 0~1.
+                    (default is 0.0)
   --species_dp      The minimum depth of species to be considered in strain
                     profiling step (default is 5).
-  --snp_dp          The minimum depth of SNPs to be considered in strain
-                    profiling step (default is 5).
+  --snp_ratio       The SNVs of which the depth are less than the specific
+                    ratio of the species's mean depth would be removed.
+                    (default is 0.45).
+  --qual            The minimum quality score of SNVs to be considered in
+                    strain profiling step (default is 20).
   --similarity      The similarity cutoff of hierachical clustering in merge
                     step (default is 0.95).
+  --elbow           The cutoff of elbow method while identifying strains
+                    number. If the loss reduction ratio is less than the
+                    cutoff, then the strains number is determined.
   --bowtie2         Path to bowtie2 binary. If your platform is not Linux, you
                     need to specify your own bowtie2 binary.
   --bowtie2-build   Path to bowtie2 binary. If your platform is not Linux, you
@@ -152,7 +165,10 @@ optional arguments:
                     path).
   --picard          Path to picard binary (default version is in the packages
                     path).
-  --dbdir           Path to marker gene database.
+  --dbdir           Path to marker gene database (default is in the ../db
+                    path).
+  --prior           The file of prior knowledge of genotype frequencies in the
+                    population.
 ```
 
 ## Single Species Mode
@@ -162,12 +178,13 @@ If you have the prior knowledge of strains number, you can add this info to argu
 
 Detailed usage information can be found as follows:
 ```
-usage: python3 single_species.py [options] -b/--bam <bam file> -v/--vcf <vcf file> -o/--outdir <output directory>
+Usage: python3 single_species.py [options] -b/--bam <bam file> -v/--vcf <vcf file> -o/--outdir <output directory>
+Example: python3 single_species.py -b mapped.bam -v mapped.vcf.gz --prior /home/wangshuai/strain/00.simulation/15.needle/db/prior_beta.pickle -o phase_result -k 2
 
 Before using this script, you should align the reads to your reference, and call SNPs. Then you can provide the bam and vcf file. Once you have the prior knowledge of the strains number, you can provie it the to script by -k/--strainsNum parameter. Otherwise,it will choose the strains number by elbow method. 
-Help information can be found by python3 single_species.py -h/--help, additional information can be found in README.MD or www.xxx.com.
+Help information can be found by python3 single_species.py -h/--help, additional information can be found in README.MD or https://github.com/wshuai294/PStrain.
 
-PStrain: identify strains in samples with single species.
+PStrain: phase strains in samples with single species.
 
 required arguments:
   -b , --bam          The bam file of the input samples.
@@ -180,8 +197,21 @@ optional arguments:
                       by elbow method).
   --snp_dp            The minimum depth of SNPs to be considered in strain
                       profiling step (default is 5).
-  --extractHAIRS      Path to extractHAIRS binary (default version is in the
-                      packages path).
+  --prior             The file of prior knowledge of genotype frequencies in
+                      the population.
+  --elbow             The cutoff of elbow method while identifying strains
+                      number. If the loss reduction ratio is less than the
+                      cutoff, then the strains number is determined.
+  --qual              The minimum quality score of SNVs to be considered in
+                      strain profiling step (default is 20).
+  -w , --weight       The weight of genotype frequencies while computing loss,
+                      then the weight of linked read type frequencies is 1-w.
+                      The value is between 0~1. (default is 0.0)
+  --lambda1           The weight of prior knowledge while rectifying genotype
+                      frequencies. The value is between 0~1. (default is 0.0)
+  --lambda2           The weight of prior estimation while rectifying second
+                      order genotype frequencies. The value is between 0~1.
+                      (default is 0.0)
 ```
 
 ## Prepare your own marker gene database
