@@ -34,7 +34,6 @@ PStrain relies on these softwares, we have uploaded the binary file of them to t
 
 ```
 Usage: python3 PStrain.py [options] -c/--conf <config file> -o/--outdir <output directory>
-Example: python3 PStrain.py -p 10 -n 8 --similarity 0.95 -o ./FMT_new -c old.config --dbdir /home/wangshuai/strain/00.simulation/15.needle/db --prior /home/wangshuai/strain/00.simulation/15.needle/db/prior_beta.pickle
 ```
 The config file should follow the format, for Pair-end reads:
 ```
@@ -121,6 +120,10 @@ Gene, Locus, Ref, Alt clolumns represent the locus, following columns means the 
 
 ```
 PStrain: profile strains in shotgun metagenomic sequencing reads.
+
+Example: python3 PStrain.py -p 10 -n 8 --similarity 0.95 -o ./outdir -c config.txt \
+--dbdir /home/wangshuai/strain/00.simulation/15.needle/db \
+--prior /home/wangshuai/strain/00.simulation/15.needle/db/prior_beta.pickle
 
 required arguments:
   -c , --conf       The configuration file of the input samples.
