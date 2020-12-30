@@ -16,10 +16,10 @@ python3 PStrain.py -h
     * pickle
     * gzip
 
-PStrain need two database file, one is the metaphlan2 marker gene database, the other is the prior genotype frequencies database. We have uploaded the two database in the db/ folder to the link https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing, you can directly download the dp/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can appoint the path of these two database by corresponding arguments --dbdir and --prior.
+PStrain need two database file, one is the metaphlan2 marker gene database, the other is the prior genotype frequencies database. We have uploaded the two database in the db/ folder to the link https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing, you can directly download the db/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can appoint the path of these two database by corresponding arguments --dbdir and --prior.
 
 
-PStrain relies on these softwares, we have uploaded the binary file of them to the folder packages/ in the link https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing, you can directly download the packages/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can install them by yourself, and appoint them by --picard, --samtools, --bowtie2-build, and --bowtie2 arguments.   
+PStrain relies on these softwares, we have uploaded the binary file of them to the folder packages/ in the link https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing, you can directly download the packages/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can install them by yourself, and appoint them by --samtools, --bowtie2-build, --bowtie2, --metaphlan2, --gatk, and --picard arguments.   
 * Third party pipelines:
     * SamTools-1.3.1
     * bowtie2-2.3.1
@@ -59,6 +59,12 @@ fq1: [single end reads fastq]
 fq2:  
 ... 
 ```
+## Citation
+Shuai Wang, Yiqi Jiang, Shuaicheng Li, PStrain: An Iterative Microbial Strains Profiling Algorithm for Shotgun Metagenomic Sequencing Data, Bioinformatics, , btaa1056, https://doi.org/10.1093/bioinformatics/btaa1056
+
+## Getting help
+Should you have any queries, please feel free to contact me, I will reply as soon as possible..(swang66-c@my.cityu.edu.hk)
+
 ## Interpret output
 In the output directory specified by "-o", there are directories for each sample named by sample ID and one directory named merge.  
 
