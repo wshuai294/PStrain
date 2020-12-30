@@ -63,7 +63,7 @@ fq2:
 Shuai Wang, Yiqi Jiang, Shuaicheng Li, PStrain: An Iterative Microbial Strains Profiling Algorithm for Shotgun Metagenomic Sequencing Data, Bioinformatics, , btaa1056, https://doi.org/10.1093/bioinformatics/btaa1056
 
 ## Getting help
-Should you have any queries, please feel free to contact me, I will reply as soon as possible..(swang66-c@my.cityu.edu.hk)
+Should you have any queries, please feel free to contact me, I will reply as soon as possible (swang66-c@my.cityu.edu.hk).
 
 ## Interpret output
 In the output directory specified by "-o", there are directories for each sample named by sample ID and one directory named merge.  
