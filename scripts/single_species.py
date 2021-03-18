@@ -191,10 +191,14 @@ if __name__ == "__main__":
     else:
         bamfile,vcffile,outdir,strainsNum,extractHAIRS,snp_dp=args.bamfile,args.vcffile,args.outdir,args.k,'',args.snp_dp
         qual,weight,lambda1,lambda2,prior,elbow=args.qual,args.weight,args.lambda1,args.lambda2,args.prior,args.elbow
-        with open(prior, 'rb') as f:
-            popu = pickle.load(f)
-        f.close()
-        print ('Database is loaded.')
+        if os.path.isfile(prior):
+            with open(prior, 'rb') as f:
+                popu = pickle.load(f)
+            f.close()
+            print ('Database is loaded.')
+        else:
+            popu = {}
+            print ('Prior database is not found.')
         # data,alt_homo,to_sort,hete_species=pipeline.read_vcf(outdir,[],snp_dp,qual,vcffile)
         data,alt_homo,to_sort,hete_species=read_vcf(outdir,[],snp_dp,qual,vcffile)
         # data=pipeline.delta(outdir,extractHAIRS,data,bamfile)
