@@ -18,7 +18,7 @@ def run_metaphlan2(metaphlan2dir,metaphlan2,fq1,fq2,nproc,bowtie2):
 def read_metaphlan2(metaphlan2dir):
     metaphlan2_file=metaphlan2dir+'/metaphlan2_output.txt'
     species_set=[]
-    sp_ra=[]
+    sp_ra={}
     for line in open(metaphlan2_file,'r'):
         line=line.strip()
         name=re.search('s__(.+)$',line)
@@ -26,7 +26,8 @@ def read_metaphlan2(metaphlan2dir):
             array=name.group(1).split()
             if float(array[1]) > 0.05:
                 species_set.append(array[0])
-                sp_ra.append(float(array[1]))
+                #sp_ra.append(float(array[1]))
+                sp_ra[array[0]]=float(array[1]) 
     return species_set,sp_ra
 def extract_ref(species_set,refdir,dbdir):
     # dbdir='../db_v20/'
@@ -390,7 +391,8 @@ def output(species_alpha,species_seq,species_snp,species_set,sp_ra,alt_homo,to_s
     print ('# Species\tSpecies_RA\tStrain_ID\tStrain_Freq\tStrain_RA',file=ra_file)
     for i in range(len(hete_species)):
         species=hete_species[i]
-        ra=sp_ra[i]
+        #ra=sp_ra[i]
+        ra=sp_ra[species]
         alpha=species_alpha[i]
         seq=species_seq[i]
         snp=species_snp[i]  
@@ -447,7 +449,8 @@ def output(species_alpha,species_seq,species_snp,species_set,sp_ra,alt_homo,to_s
                 if species not in species_set:
                     print ('There is no species called %s!!'%(species))
                 index=species_set.index(species)
-                ra=sp_ra[index]
+                #ra=sp_ra[index]
+                ra=sp_ra[species]
                 # print (species, index, ra)
                 pre_species=species
                 # print (resultdir+'/seq/'+species+'_seq.txt')
@@ -461,7 +464,7 @@ def output(species_alpha,species_seq,species_snp,species_set,sp_ra,alt_homo,to_s
     #the species that have no snv
     for index in range(len(species_set)):
         species=species_set[index]
-        ra=sp_ra[index]
+        ra=sp_ra[species]
         if species not in finish_species:
             # print (species,'no valid SNV')
             sequence=open(resultdir+'/seq/'+species+'_seq.txt','w')
