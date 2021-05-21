@@ -228,10 +228,15 @@ PStrain use the marker gene database of Metaphlan2 (V20), you can use Metaphlan3
 
 You can build the pipeline as follow:
 ```
-1. Given the raw fastq file of a sample, run Metaphlan3 to get the species abundance.
-2. For each species in the sample, extract the species' corresponding marker genes from Metaphlan3 as the reference.
-3. For each species, map sample's reads to the reference of the species with bowtie2 and call SNV with GATK, you will get the BAM and VCF file.
-4. For each species, run python3 single_species.py [options] -b/--bam <bam file> -v/--vcf <vcf file> -o/--outdir <output directory>.
-5. Then you get the strain profiles of each species in each sample, you can now analyze them.   
+Step 1. Given the raw fastq file of a sample, run Metaphlan3 to get the species 
+        abundance.
+Step 2. For each species in the sample, extract the species' corresponding marker 
+        genes from Metaphlan3 as the reference.
+Step 3. For each species, map sample's reads to the reference of the species with 
+        bowtie2 and call SNV with GATK, you will get the BAM and VCF file.
+Step 4. For each species, run python3 single_species.py [options] -b/--bam <bam file>
+         -v/--vcf <vcf file> -o/--outdir <output directory>.
+Step 5. Then you get the strain profiles of each species in each sample, you can now 
+        analyze them.   
 ```
-
+You can also use other marker gene database in the same way.
