@@ -239,7 +239,7 @@ class Workflow():
         T=1
         while True:
             geno_index, corr_loss, final_alpha=self.iteration(T)
-            print (T, corr_loss, corr_loss/len(self.beta_set) , float(previous_loss-corr_loss)/previous_loss)
+            #print (T, corr_loss, corr_loss/len(self.beta_set) , float(previous_loss-corr_loss)/previous_loss)
             if corr_loss==0 or float(previous_loss-corr_loss)/previous_loss < float(self.elbow) or corr_loss/len(self.beta_set) < 0.02:
                 if T == 1:
                     previous_alpha,previous_index=final_alpha,geno_index

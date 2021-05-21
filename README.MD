@@ -223,26 +223,15 @@ optional arguments:
                       (default is 0.0)
 ```
 
-## Prepare your own marker gene database
-PStrain use the marker gene database of metaphlan2 (V20), you can also prepare your own database, and add the path to to argument --dbdir.
+## Use Metaphlan3 as marker gene database
+PStrain use the marker gene database of Metaphlan2 (V20), you can use Metaphlan3 as the marker gene database. You can build the pipeline easily by yourself, the code single_species.py in the scripts/ folder can be very useful.
 
-There should be two files in the database folder, the first one is marker_gene.fna, it is the sequence of marker gene in fasta formate.
-An example is as follow:
+You can build the pipeline as follow:
 ```
->gi|345004010|ref|NC_015954.1|:c1336247-1335993
-ATGCCCGAACACGTCGGCACCACCGACCCCGACGGGGTTGATTTCGGCTGGGTGATGCAG
-AGCAC
->gi|345004010|ref|NC_015954.1|:2775135-2775383
-ATGGCGGAGACCCTCACAGAACTCTCCCAACGGAATGAAGCGTTCTGGATTGGTTTGGCT
-CTATTCCTTCTCGGAGTGA
-```
-The other file is species_markers.txt, it has two colums, the first colum represent gene name, the second colum is the corresponding species name of the gene.
-An example is as follow:
-```
-gi|483970126|ref|NZ_KB891629.1|:c6456-5752 s__Streptomyces_sp_KhCrAH_244
-gi|389575461|ref|NZ_CM001487.1|:2807701-2808822 s__Eubacterium_cellulosolvens
-gi|225074862|ref|NZ_GG661976.1|:131927-134068 s__Helicobacter_winghamensis
-gi|397677603|ref|NC_018149.1|:637056-637958 s__Mycoplasma_wenyonii
-gi|284161128|ref|NC_013741.1|:c752279-751428 s__Archaeoglobus_profundus
+1. Given the raw fastq file of a sample, run Metaphlan3 to get the species abundance.
+2. For each species in the sample, extract the species' corresponding marker genes from Metaphlan3 as the reference.
+3. For each species, map sample's reads to the reference of the species with bowtie2 and call SNV with GATK, you will get the BAM and VCF file.
+4. For each species, run python3 single_species.py [options] -b/--bam <bam file> -v/--vcf <vcf file> -o/--outdir <output directory>.
+5. Then you get the strain profiles of each species in each sample, you can now analyze them.   
 ```
 
