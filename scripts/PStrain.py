@@ -50,9 +50,9 @@ optional.add_argument("--snp_ratio",help="The SNVs of which the depth are less t
 optional.add_argument("--qual",help="The minimum quality score of SNVs to be considered in strain profiling step (default is 20).",\
     dest='qual',metavar='',default=20, type=int)
 optional.add_argument("--similarity",help="The similarity cutoff of hierachical clustering in merge step (default is 0.95).",\
-    dest='similarity',metavar='',default=0.8, type=float)
+    dest='similarity',metavar='',default=0.95, type=float)
 optional.add_argument("--elbow",help="The cutoff of elbow method while identifying strains number. \
-If the loss reduction ratio is less than the cutoff, then the strains number is determined.",\
+If the loss reduction ratio is less than the cutoff, then the strains number is determined. Default is 0.24.",\
     dest='elbow',metavar='',default=0.24, type=float)
 optional.add_argument("--bowtie2",help="Path to bowtie2 binary. If your platform is not Linux, you need to specify your own\
     bowtie2 binary.",dest='bowtie2',metavar='',default=scripts_dir+'../packages/bowtie2-2.3.1-legacy/bowtie2')
