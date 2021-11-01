@@ -4,6 +4,7 @@
 ```
 cd PStrain/scripts
 python3 PStrain.py -h
+python3 PStrain_V30.py -h (to use Metaphlan3)
 ```
 ## Dependencies 
 * Python 3.7.0 or above  
@@ -23,8 +24,8 @@ PStrain relies on these softwares, we have uploaded the binary file of them to t
 * Third party pipelines:
     * SamTools-1.3.1
     * bowtie2-2.3.1
-    * metaphlan2
-    * GATK-3.5
+    * metaphlan2/3
+    * GATK-3.5 (java-1.8.0_241)
     * picard-tools-2.1.0
 
  Then you can call PStrain.py in the scripts/ folder. 
@@ -59,6 +60,17 @@ fq1: [single end reads fastq]
 fq2:  
 ... 
 ```
+
+## Run PStrain based on Metaphlan3
+PStrain also allows using Metaphlan3 to get species profiles. You can download the Metaphlan3 database db_V30 from https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing. Also you should install Metaphlan3 by yourself, and let PStrain know the path. Then you can run PStrain with 
+```
+Usage: python3 PStrain_V30.py [options] -c/--conf <config file> -o/--outdir <output directory> --metaphlan3 <path-to-metaphlan3>
+
+Example: python PStrain_V30.py --metaphlan3 /home/wangshuai/miniconda3/bin/metaphlan -c test.config -o test_dir
+```
+For metaphlan3, we do not build prior genotype frequencies database which will not impact the performance very much. So just ignore --prior parameter. ALso, you can build a prior genotype frequencies database by yourself. I will show how to do this in the following section.
+In this way, PStrain will run Metaphlan3 to find the species profile in the sample and profile the strains in each species.
+
 ## Citation
 Shuai Wang, Yiqi Jiang, Shuaicheng Li, PStrain: An Iterative Microbial Strains Profiling Algorithm for Shotgun Metagenomic Sequencing Data, Bioinformatics, , btaa1056, https://doi.org/10.1093/bioinformatics/btaa1056
 
@@ -223,8 +235,8 @@ optional arguments:
                       (default is 0.0)
 ```
 
-## Use Metaphlan3 as marker gene database
-PStrain use the marker gene database of Metaphlan2 (V20), you can use Metaphlan3 as the marker gene database. You can build the pipeline easily by yourself, the code single_species.py in the scripts/ folder can be very useful.
+## Run PStrain on your concerned species
+You can build the species-specific pipeline easily by yourself, the code single_species.py in the scripts/ folder can be very useful.
 
 You can build the pipeline as follow:
 ```
