@@ -252,3 +252,37 @@ Step 5. Then you get the strain profiles of each species in each sample, you can
         analyze them.   
 ```
 You can also use other marker gene database in the same way.
+
+## Build your own prior database
+Although PStrain's performance is good enough without the prior database except for the gene with too low depth. You can build your own prior database to improve the     performance. PStrain will assume the prior beta is 0.5 if not finding prior knowledge.
+
+To generate the prior database, please follow these steps:
+
+1. Run PStrain.py (Metaphlan2) or PStrain_V30.py (Metaphlan3) directly to get the bam file in each sample, and call SNP with GATK in gvcf formate which will indicate the depth for each base.  
+2. Merge the SNP by computing mean frequency of each base in all samples. And generate a file named "prior_beta.txt" in this formate:
+```
+locus   A       T       C       G
+gi|378760316|ref|NZ_AGDG01000038.1|:8694-9629|Bacteroides_faecis_517    1       0       0       0
+gi|410936685|ref|NZ_AJRF02000012.1|:54814-55320|Enterococcus_faecium_299        0       1       0       0
+gi|139439993|ref|NZ_AAVN02000016.1|:7311-8633|Collinsella_aerofaciens_783       0.0102827763496144      0.0205655526992288      0       0.969151670951157
+gi|239633764|ref|NZ_GG670286.1|:165060-166319|Enterococcus_gallinarum_626       0       0       0       1
+gi|345651640|ref|NZ_JH114383.1|:276898-279936|Bacteroides_vulgatus_2725 0       0       0       1
+GeneID:16385027|Lactococcus_phage_jm2_95        1       0       0       0
+gi|488673303|ref|NZ_KB850950.1|:c879018-878179|Clostridium_hathewayi_511        0       0       0       1
+```
+3. Then you can convert it to pickle formate by
+```
+import pickle
+popu={}
+f=open('prior_beta.txt','r')
+for line in f:
+    break
+for line in f:
+    line=line.strip()
+    array=line.split()
+    atcg=array[1:]
+    popu[array[0]]=atcg  
+ with open('prior_beta.pickle', 'wb') as f:
+     pickle.dump(popu, f, pickle.HIGHEST_PROTOCOL) 
+```
+Then please afford the file to PStrain with parameter --prior.
