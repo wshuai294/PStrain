@@ -63,6 +63,10 @@ optional.add_argument("--samtools",help="Path to samtools binary (default versio
     metavar='',default=scripts_dir+'../packages/SamTools-1.3.1/samtools')
 optional.add_argument("--metaphlan3",help="Path to metaphlan3 (default version is in the packages path).",dest='metaphlan3',metavar='',\
     default=scripts_dir+'../packages/metaphlan3')
+optional.add_argument("--metaphlan3_output_files",help="If you have run metaphlan3 already,\
+ give metaphlan3 result file in each line, the order should be the same with config file. In particular, \
+ '--tax_lev s' should be added while running metaphlan3.",dest='metaphlan3_output_files',metavar='',\
+    default='')
 optional.add_argument("--gatk",help="Path to gatk binary (default version is in the packages path).",dest='gatk',metavar='',\
     default=scripts_dir+'../packages/GATK_3.5/GenomeAnalysisTK.jar')
 optional.add_argument("--picard",help="Path to picard binary (default version is in the packages path).",dest='picard',metavar='',\
@@ -80,5 +84,5 @@ if len(sys.argv)==1:
 else:
     arg_list=[args.nproc,args.species_dp,args.snp_dp,args.dbdir_V30,args.picard,args.samtools,args.bowtie2_build,args.bowtie2,'',\
         args.gatk,args.metaphlan3,args.proc,args.weight,args.lambda1,args.lambda2,args.prior,args.elbow,args.qual]
-    pipeline_V30.multiproc(args.outdir,args.cfgfile,arg_list)
+    pipeline_V30.multiproc(args.outdir,args.cfgfile,arg_list,args.metaphlan3_output_files)
     merge.species_samples(args.outdir,args.cfgfile,args.similarity)

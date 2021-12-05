@@ -71,6 +71,55 @@ Example: python PStrain_V30.py --metaphlan3 /home/wangshuai/miniconda3/bin/metap
 For metaphlan3, we do not build prior genotype frequencies database which will not impact the performance very much. So just ignore --prior parameter. ALso, you can build a prior genotype frequencies database by yourself. I will show how to do this in the following section.
 In this way, PStrain will run Metaphlan3 to find the species profile in the sample and profile the strains in each species.
 
+If you have run metaphlan3 already for each file, to save runtime, you can build a file to record 
+the metaphlan3 resultfile of each sample in each line (In particular,  "--tax_lev s" should be added while running metaphlan3.). 
+Please afford this file to PStrain_V30.py with the parameter "--metaphlan3_output_files".
+The file should be like
+```
+sample1_metaphlan3_output.txt
+sample2_metaphlan3_output.txt
+sample3_metaphlan3_output.txt
+...
+``` 
+Then PStrain will skip running metaphlan3, and use the existing metaphlan3 result files.
+###command-line options
+```
+PStrain: profile strains in shotgun metagenomic sequencing reads.
+
+required arguments:
+  -c , --conf           The configuration file of the input samples.
+  -o , --outdir         The output directory.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -p , --proc           The number of process to use for parallelizing the whole pipeline (default is 1).
+  -n , --nproc          The number of CPUs to use for parallelizing the mapping with bowtie2(default is 1).
+  -w , --weight         The weight of genotype frequencies while computing loss, then the weight of linked read type frequencies is 1-w. The
+                        value is between 0~1. (default is 0.0)
+  --lambda1             The weight of prior knowledge while rectifying genotype frequencies. The value is between 0~1. (default is 0.0)
+  --lambda2             The weight of prior estimation while rectifying second order genotype frequencies. The value is between 0~1. (default is
+                        0.0)
+  --species_dp          The minimum depth of species to be considered in strain profiling step (default is 5).
+  --snp_ratio           The SNVs of which the depth are less than the specific ratio of the species's mean depth would be removed. (default is
+                        0.45).
+  --qual                The minimum quality score of SNVs to be considered in strain profiling step (default is 20).
+  --similarity          The similarity cutoff of hierachical clustering in merge step (default is 0.95).
+  --elbow               The cutoff of elbow method while identifying strains number. If the loss reduction ratio is less than the cutoff, then
+                        the strains number is determined. Default is 0.24.
+  --bowtie2             Path to bowtie2 binary. If your platform is not Linux, you need to specify your own bowtie2 binary.
+  --bowtie2-build       Path to bowtie2 binary. If your platform is not Linux, you need to specify your own bowtie2-build binary.
+  --samtools            Path to samtools binary (default version is in the packages path). If your platform is not Linux, you need to specify
+                        your own samtools binary.
+  --metaphlan3          Path to metaphlan3 (default version is in the packages path).
+  --metaphlan3_output_files
+                        If you have run metaphlan3 already, give metaphlan3 result file in each line, the order should be the same with config
+                        file. In particular, '--tax_lev s' should be added while running metaphlan3.
+  --gatk                Path to gatk binary (default version is in the packages path).
+  --picard              Path to picard binary (default version is in the packages path).
+  --dbdir_V30           Path to marker gene database (default is in the ../db_V30 path).
+  --prior               The file of prior knowledge of genotype frequencies in the population. Not providing this is also ok.
+```
+
 ## Citation
 Shuai Wang, Yiqi Jiang, Shuaicheng Li, PStrain: An Iterative Microbial Strains Profiling Algorithm for Shotgun Metagenomic Sequencing Data, Bioinformatics, , btaa1056, https://doi.org/10.1093/bioinformatics/btaa1056
 
@@ -134,7 +183,7 @@ gi|545276179|ref|NZ_KE701962.1|:c548151-546829	312	C	A	1	1	1	0	0
 ```
 Gene, Locus, Ref, Alt clolumns represent the locus, following columns means the composition of the consensus sequence of each cluster.
 
-## Full command-line options
+## Metaphlan2 version command-line options
 
 ```
 PStrain: profile strains in shotgun metagenomic sequencing reads.

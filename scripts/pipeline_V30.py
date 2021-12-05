@@ -16,8 +16,11 @@ def run_metaphlan3(metaphlan3dir,metaphlan3,fq1,fq2,nproc,bowtie2):
         logging.info('Metaphlan3 is done.') 
     else:
         logging.info('Metaphlan3 result exists already.')
-def read_metaphlan3(metaphlan3dir):
-    metaphlan3_file=metaphlan3dir+'/metaphlan3_output.txt'
+def read_metaphlan3(metaphlan3dir,prior_metaphlan3_out):
+    if prior_metaphlan3_out == '':
+        metaphlan3_file=metaphlan3dir+'/metaphlan3_output.txt'
+    else:
+        metaphlan3_file = prior_metaphlan3_out
     species_set=[]
     sp_ra={}
     for line in open(metaphlan3_file,'r'):
@@ -329,7 +332,7 @@ def profiling(data,weight,lambda1,lambda2,popu,elbow,low_dp_sp):
     print ('The core algorithm is done.')
     logging.info('The core algorithm is done.')
     return species_alpha,species_seq,species_snp
-def single_run(sample,outdir,fq1,fq2,arg_list,popu):
+def single_run(sample,outdir,fq1,fq2,arg_list,popu,prior_metaphlan3_out):
     nproc=arg_list[0] 
     species_dp=arg_list[1]
     snp_dp=arg_list[2]
@@ -371,19 +374,20 @@ def single_run(sample,outdir,fq1,fq2,arg_list,popu):
                         filename=outdir+'/run.log',  
                         filemode='w')  
     vcffile,bamfile='%s/mapped.vcf.gz'%(mapdir),'%s/mapped.bam'%(mapdir)
-    if os.path.isfile(vcffile) and os.path.isfile(bamfile):
-        species_set,sp_ra=read_metaphlan3(metaphlan3dir)
-        removed_gene,low_dp_sp=copy_number(mapdir,species_dp,samtools)
-        dict_species_depth = depth_of_each_species(mapdir)
-    else:
+    # if os.path.isfile(vcffile) and os.path.isfile(bamfile):
+    #     species_set,sp_ra=read_metaphlan3(metaphlan3dir)
+    #     removed_gene,low_dp_sp=copy_number(mapdir,species_dp,samtools)
+    #     dict_species_depth = depth_of_each_species(mapdir)
+    # else:
+    if not os.path.isfile(prior_metaphlan3_out):
         run_metaphlan3(metaphlan3dir,metaphlan3,fq1,fq2,nproc,bowtie2)
-        species_set,sp_ra=read_metaphlan3(metaphlan3dir)
-        extract_ref(species_set,refdir,dbdir)
-        index_ref(refdir,picard,samtools,bowtie2_build)
-        bowtie2_map(bowtie2,samtools,refdir,mapdir,fq1,fq2,nproc,picard)    
-        removed_gene,low_dp_sp=copy_number(mapdir,species_dp,samtools)
-        dict_species_depth = depth_of_each_species(mapdir)
-        call_snp(gatk,mapdir,refdir,bamfile) 
+    species_set,sp_ra=read_metaphlan3(metaphlan3dir,prior_metaphlan3_out)
+    extract_ref(species_set,refdir,dbdir)
+    index_ref(refdir,picard,samtools,bowtie2_build)
+    bowtie2_map(bowtie2,samtools,refdir,mapdir,fq1,fq2,nproc,picard)    
+    removed_gene,low_dp_sp=copy_number(mapdir,species_dp,samtools)
+    dict_species_depth = depth_of_each_species(mapdir)
+    call_snp(gatk,mapdir,refdir,bamfile) 
     print ('......................................')
     data,alt_homo,to_sort,hete_species=read_vcf(mapdir,removed_gene,snp_dp,qual,vcffile, dict_species_depth)
     print ('after reads vcf, start delta')
@@ -499,8 +503,17 @@ def multi_samples(outdir,cfgfile,arg_list,popu):
             fq2='single_end'
         single_run(sample_name,outdir,fq1,fq2,arg_list,popu)
         print ('Sample %s is done.'%(sample_name))
-def multiproc(outdir,cfgfile,arg_list):
-    prior=arg_list[15]
+def multiproc(outdir,cfgfile,arg_list,metaphlan3_output_files):
+    
+
+    prior_metaphlan3 = {}
+    if os.path.isfile(metaphlan3_output_files):
+        i = 0
+        for line in open(metaphlan3_output_files):
+            prior_metaphlan3[i] = line.strip()
+            i += 1
+
+    prior=arg_list[15]  
     if os.path.isfile(prior):
         with open(prior, 'rb') as f:
             popu = pickle.load(f)
@@ -522,6 +535,10 @@ def multiproc(outdir,cfgfile,arg_list):
     pool=multiprocessing.Pool(processes=arg_list[11])
     pool_list=[]    
     for i in range(sample_num):
+        if i in prior_metaphlan3.keys():
+            prior_metaphlan3_out = prior_metaphlan3[i]
+        else:
+            prior_metaphlan3_out = ''
         sample_name=cfg_list[4*i+1].split(':')[1].strip()
         fq1=cfg_list[4*i+2].split(':')[1].strip()
         fq2_array=cfg_list[4*i+3].split(':')
@@ -530,7 +547,7 @@ def multiproc(outdir,cfgfile,arg_list):
         else:
             fq2='single_end'
         # if not os.path.isfile('/mnt/disk2_workspace/wangshuai/00.strain/01.real_strains/real_data/CRC_new/%s/result/strain_RA.txt'%(sample_name)):
-        pool_list.append(pool.apply_async(single_run,(sample_name,outdir,fq1,fq2,arg_list,popu,)))
+        pool_list.append(pool.apply_async(single_run,(sample_name,outdir,fq1,fq2,arg_list,popu,prior_metaphlan3_out,)))
     pool.close()
     pool.join()
         
