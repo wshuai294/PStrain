@@ -66,7 +66,11 @@ PStrain also allows using Metaphlan3 to get species profiles. You can download t
 ```
 Usage: python3 PStrain_V30.py [options] -c/--conf <config file> -o/--outdir <output directory> --metaphlan3 <path-to-metaphlan3>
 
-Example: python PStrain_V30.py --metaphlan3 /home/wangshuai/miniconda3/bin/metaphlan -c test.config -o test_dir
+Example: python3 PStrain_V30.py --metaphlan3 /home/wangshuai/miniconda3/bin/metaphlan -c test.config -o test_dir
+
+or
+
+python3 PStrain_V30.py --metaphlan3_output_files exisiting_metaphlan3_results.txt -c test.config -o test_dir 
 ```
 For metaphlan3, we do not build prior genotype frequencies database which will not impact the performance very much. So just ignore --prior parameter. ALso, you can build a prior genotype frequencies database by yourself. I will show how to do this in the following section.
 In this way, PStrain will run Metaphlan3 to find the species profile in the sample and profile the strains in each species.
@@ -82,7 +86,7 @@ sample3_metaphlan3_output.txt
 ...
 ``` 
 Then PStrain will skip running metaphlan3, and use the existing metaphlan3 result files.
-###command-line options
+### command-line options
 ```
 PStrain: profile strains in shotgun metagenomic sequencing reads.
 
