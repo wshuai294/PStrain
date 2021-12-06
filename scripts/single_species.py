@@ -209,8 +209,8 @@ if __name__ == "__main__":
         beta_set,delta_set,share_set=pipeline.rectify(sp,lambda1,lambda2,popu)
         if strainsNum==0:
             wo=Workflow(beta_set,delta_set,share_set,weight,elbow)
-            final_alpha,seq_list=wo.choose_k()
+            final_alpha,seq_list,final_loss=wo.choose_k()
         else:
             wo=Workflow(beta_set,delta_set,share_set,weight,elbow)
-            final_alpha,seq_list=wo.given_k(strainsNum)   
+            final_alpha,seq_list,final_loss=wo.given_k(strainsNum)   
         output(outdir,final_alpha,seq_list,to_sort,snp_list)    

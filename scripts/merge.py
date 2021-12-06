@@ -107,7 +107,7 @@ def generate_all_points(locus_dict, allele_dict, num_dict):
 
             if lo in allele_dict[sample].keys():
                 if len(allele_dict[sample][lo]) != int(str_num):
-                    print (sample, int(str_num), len(allele_dict[sample][lo]), 'why !!!!!!!!!!!!!!!!!!!')
+                    print (sample, int(str_num), len(allele_dict[sample][lo]), 'warning')
                 point_list+=allele_dict[sample][lo]
             else:
                 point_list+=int(str_num)*[0]
@@ -198,7 +198,7 @@ def species_samples(outdir,cfgfile,similarity):
                     print ('# Species\tSpecies_RA\tStrain_ID\tCluster_ID\tStrain_Freq\tStrain_RA',file=cout)
                 else:
                     array=line.split()
-                    print (array)
+                    # print (array)
                     if array[0] in final_dict[sample].keys():# and :
                         # print (final_dict[sample][array[0]])
                         index=final_dict[sample][array[0]][0]

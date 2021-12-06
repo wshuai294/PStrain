@@ -83,9 +83,9 @@ def call_snp(gatk,mapdir,refdir,bamfile):
     gatk_order='java -Xmx5g -jar %s \
     -T HaplotypeCaller -R %s/merged_ref.fa -allowPotentiallyMisencodedQuals \
     -I %s -o %s/mapped.vcf.gz'%(gatk,refdir,bamfile,mapdir)
-    print (gatk_order)
+    logging.info(gatk_order)
     os.system(gatk_order)
-    logging.info('SNPs calling is done.')
+    # logging.info('SNPs calling is done.')
     
 
     # freebayes_order = 'freebayes -f -R %s/merged_ref.fa -b %s -v %s/mapped.vcf\n \
@@ -141,7 +141,7 @@ def read_vcf(mapdir,removed_gene,snp_dp,qual,vcffile,dict_species_depth):
     data.append([species,snp_list,beta_set])
     data=data[1:]
     hete_species=hete_species[1:]
-    logging.info('SNPs is filtered.')
+    # logging.info('SNPs is filtered.')
     if flag == False:
         logging.warning('There is no heterozygous loci at all.')
     return data,alt_homo,to_sort,hete_species
@@ -304,7 +304,7 @@ def rectify(sp,lambda1,lambda2,popu):
         delta=inde_delta*(lambda2/(1+c)) + hat_delta*(1-lambda2/(1+c))  #retify
         delta_set.append(delta.tolist())
     return beta_set,delta_set,share_set
-def profiling(data,weight,lambda1,lambda2,popu,elbow,low_dp_sp):
+def profiling(data,weight,lambda1,lambda2,popu,elbow,low_dp_sp,sample):
     species_alpha,species_seq,species_snp=[],[],[]
     for sp in data:
         species=sp[0]
@@ -318,19 +318,21 @@ def profiling(data,weight,lambda1,lambda2,popu,elbow,low_dp_sp):
         #     species_snp.append([])
         if species not in low_dp_sp:# and len(beta_set) > 0:
             wo=Workflow(beta_set,delta_set,share_set,weight,elbow)
-            final_alpha,seq_list=wo.choose_k()
+            final_alpha,seq_list,final_loss=wo.choose_k()
             species_alpha.append(final_alpha)
             species_seq.append(seq_list)
             species_snp.append(snp_list)
         else:
             #for species with low abundance, we profile the consensus sequence.
             wo=Workflow(beta_set,delta_set,share_set,weight,elbow)
-            final_alpha,seq_list=wo.given_k(1)
+            final_alpha,seq_list,final_loss=wo.given_k(1)
             species_alpha.append(final_alpha)
             species_seq.append(seq_list)
             species_snp.append(snp_list)        
-    print ('The core algorithm is done.')
-    logging.info('The core algorithm is done.')
+    print ('Iteration is done for %s.'%(sample))
+    print ('Final loss score is %s for %s in the optimization.'%(final_loss, sample))  
+    logging.info('Iteration is done for %s.'%(sample))  
+    logging.info('Final loss score is %s for %s in the optimization.'%(final_loss, sample))  
     return species_alpha,species_seq,species_snp
 def single_run(sample,outdir,fq1,fq2,arg_list,popu,prior_metaphlan3_out):
     nproc=arg_list[0] 
@@ -367,12 +369,13 @@ def single_run(sample,outdir,fq1,fq2,arg_list,popu,prior_metaphlan3_out):
         os.system('mkdir '+resultdir)
     if not os.path.exists(resultdir+'/seq/'):
         os.system('mkdir '+resultdir+'/seq/')
-    print ('##############')
-    logging.basicConfig(level=logging.DEBUG,  
-                        format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',  
-                        datefmt='%a, %d %b %Y %H:%M:%S',  
-                        filename=outdir+'/run.log',  
-                        filemode='w')  
+    print ('Start Profiling %s...'%(sample))
+    logging.info('Start Profiling %s...'%(sample))
+    # logging.basicConfig(level=logging.DEBUG,  
+    #                     format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',  
+    #                     datefmt='%a, %d %b %Y %H:%M:%S',  
+    #                     filename=outdir+'/run.log',  
+    #                     filemode='w')  
     vcffile,bamfile='%s/mapped.vcf.gz'%(mapdir),'%s/mapped.bam'%(mapdir)
     # if os.path.isfile(vcffile) and os.path.isfile(bamfile):
     #     species_set,sp_ra=read_metaphlan3(metaphlan3dir)
@@ -380,20 +383,25 @@ def single_run(sample,outdir,fq1,fq2,arg_list,popu,prior_metaphlan3_out):
     #     dict_species_depth = depth_of_each_species(mapdir)
     # else:
     if not os.path.isfile(prior_metaphlan3_out):
+        logging.info('Start Running Metaphlan3 for %s...'%(sample))
         run_metaphlan3(metaphlan3dir,metaphlan3,fq1,fq2,nproc,bowtie2)
+    else:
+        logging.info('Metaphlan3 result is found for %s...'%(sample))
     species_set,sp_ra=read_metaphlan3(metaphlan3dir,prior_metaphlan3_out)
     extract_ref(species_set,refdir,dbdir)
+    logging.info('Sample specific marker genes are extracted for %s.'%(sample))
     index_ref(refdir,picard,samtools,bowtie2_build)
-    bowtie2_map(bowtie2,samtools,refdir,mapdir,fq1,fq2,nproc,picard)    
+    bowtie2_map(bowtie2,samtools,refdir,mapdir,fq1,fq2,nproc,picard) 
+    logging.info('Alignment is done for %s.'%(sample))   
     removed_gene,low_dp_sp=copy_number(mapdir,species_dp,samtools)
     dict_species_depth = depth_of_each_species(mapdir)
     call_snp(gatk,mapdir,refdir,bamfile) 
-    print ('......................................')
+    logging.info('Variants-calling is done for %s.'%(sample))  
     data,alt_homo,to_sort,hete_species=read_vcf(mapdir,removed_gene,snp_dp,qual,vcffile, dict_species_depth)
-    print ('after reads vcf, start delta')
     data=delta(mapdir,data,bamfile)  #add delta_set
-    print ('start profiling.')
-    species_alpha,species_seq,species_snp=profiling(data,weight,lambda1,lambda2,popu,elbow,low_dp_sp)
+    print ('start iteration...')
+    logging.info('Start iteration for %s.'%(sample))   
+    species_alpha,species_seq,species_snp=profiling(data,weight,lambda1,lambda2,popu,elbow,low_dp_sp,sample)
     output(species_alpha,species_seq,species_snp,species_set,sp_ra,alt_homo,to_sort,resultdir,hete_species,low_dp_sp)
     print ('Sample %s is done.'%(sample))
     logging.info('Sample %s is done.'%(sample))
@@ -440,7 +448,7 @@ def output(species_alpha,species_seq,species_snp,species_set,sp_ra,alt_homo,to_s
                 print ('',file=sequence) 
                 point[0] = point[0] + '|' +  species
         sequence.close()
-    print ('hete species is done')
+    # print ('hete species is done')
     finish_species=hete_species[:]
     #the species that only have 1/1 snvs
     ####################################
@@ -458,7 +466,7 @@ def output(species_alpha,species_seq,species_snp,species_set,sp_ra,alt_homo,to_s
             if species != pre_species:
                 finish_species.append(species)
                 if species not in species_set:
-                    print ('There is no species called %s!!'%(species))
+                    print ('There is no species called %s.'%(species))
                 index=species_set.index(species)
                 #ra=sp_ra[index]
                 ra=sp_ra[species]
@@ -471,7 +479,7 @@ def output(species_alpha,species_seq,species_snp,species_set,sp_ra,alt_homo,to_s
             for info in point:
                 print (info,end='\t',file=sequence)
             print ('1',file=sequence)  
-    print ('homo species is done')
+    # print ('homo species is done')
     #the species that have no snv
     for index in range(len(species_set)):
         species=species_set[index]
@@ -482,7 +490,7 @@ def output(species_alpha,species_seq,species_snp,species_set,sp_ra,alt_homo,to_s
             print ('# Gene\tLocus\tRef\tAlt\tNo_Valid_SNV',end='',file=sequence)
             print (species,ra,'No_Valid_SNV','1.0',ra,file=ra_file)
             sequence.close()
-    print ('output is done')
+    # print ('output is done')
 def multi_samples(outdir,cfgfile,arg_list,popu):
 
     if not os.path.exists(outdir):
@@ -505,7 +513,7 @@ def multi_samples(outdir,cfgfile,arg_list,popu):
         print ('Sample %s is done.'%(sample_name))
 def multiproc(outdir,cfgfile,arg_list,metaphlan3_output_files):
     
-
+    logging.info("start...")
     prior_metaphlan3 = {}
     if os.path.isfile(metaphlan3_output_files):
         i = 0
@@ -519,13 +527,12 @@ def multiproc(outdir,cfgfile,arg_list,metaphlan3_output_files):
             popu = pickle.load(f)
         f.close()
         print ('Database is loaded.')
+        logging.info('Database is loaded.')
     else:
         popu = {}
-        print ('No prior database.')
-    logging.info('Database is loaded.')
-
-    if not os.path.exists(outdir):
-        os.system('mkdir '+outdir)
+        # print ('No prior database.')
+        logging.info('PStrain will not use prior database.')
+    
     cfg_list=[]
     for line in open(cfgfile,'r'):
         line=line.strip()

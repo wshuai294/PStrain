@@ -308,14 +308,14 @@ def profiling(data,weight,lambda1,lambda2,popu,elbow,low_dp_sp):
         #     species_snp.append([])
         if species not in low_dp_sp:# and len(beta_set) > 0:
             wo=Workflow(beta_set,delta_set,share_set,weight,elbow)
-            final_alpha,seq_list=wo.choose_k()
+            final_alpha,seq_list,final_loss=wo.choose_k()
             species_alpha.append(final_alpha)
             species_seq.append(seq_list)
             species_snp.append(snp_list)
         else:
             #for species with low abundance, we profile the consensus sequence.
             wo=Workflow(beta_set,delta_set,share_set,weight,elbow)
-            final_alpha,seq_list=wo.given_k(1)
+            final_alpha,seq_list,final_loss=wo.given_k(1)
             species_alpha.append(final_alpha)
             species_seq.append(seq_list)
             species_snp.append(snp_list)        

@@ -246,14 +246,14 @@ class Workflow():
                 elif float(previous_loss-corr_loss)/previous_loss >= float(self.elbow):
                     previous_alpha,previous_index=final_alpha,geno_index
                 seq_list=index2seq(len(previous_alpha),previous_index)
-                return previous_alpha,seq_list
+                return previous_alpha,seq_list,corr_loss
             previous_loss=corr_loss
             previous_alpha,previous_index=final_alpha,geno_index
             T+=1        
     def given_k(self,T):
         geno_index,corr_loss,final_alpha=self.iteration(T)
         seq_list=index2seq(len(final_alpha),geno_index)
-        return final_alpha,seq_list
+        return final_alpha,seq_list,corr_loss
     def iteration(self,T):
         #T is supposed strain number
         times=0

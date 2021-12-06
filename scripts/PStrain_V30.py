@@ -4,6 +4,9 @@ from argparse import ArgumentParser
 from my_imports import *
 import merge
 import pipeline_V30
+import logging
+from datetime import datetime
+import sys
 
 Usage = \
 """%(prog)s [options] -c/--conf <config file> -o/--outdir <output directory>
@@ -82,6 +85,12 @@ args = parser.parse_args()
 if len(sys.argv)==1:
     print (Usage%{'prog':sys.argv[0]})
 else:
+    if not os.path.exists(args.outdir):
+        os.system('mkdir '+args.outdir)
+    give_time = datetime.now().strftime("%Y_%m_%d_%H_%M")
+    logging.basicConfig(filename = args.outdir +'/'+ 'PStrain_' + give_time + '.log',\
+    format='[%(asctime)s-%(filename)s-%(levelname)s:%(message)s]', level = logging.DEBUG,filemode='w')
+    logging.info("Running parameters: %s"%(' '.join(sys.argv)))
     arg_list=[args.nproc,args.species_dp,args.snp_dp,args.dbdir_V30,args.picard,args.samtools,args.bowtie2_build,args.bowtie2,'',\
         args.gatk,args.metaphlan3,args.proc,args.weight,args.lambda1,args.lambda2,args.prior,args.elbow,args.qual]
     pipeline_V30.multiproc(args.outdir,args.cfgfile,arg_list,args.metaphlan3_output_files)

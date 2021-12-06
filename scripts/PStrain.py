@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from my_imports import *
 import merge
 import pipeline
+import logging
 
 Usage = \
 """%(prog)s [options] -c/--conf <config file> -o/--outdir <output directory>
