@@ -32,7 +32,7 @@ required=parser.add_argument_group('required arguments')
 required.add_argument("-c", "--conf",help="The configuration file of the input samples.",dest='cfgfile',metavar='')
 required.add_argument("-o", "--outdir",help="The output directory.",dest='outdir',metavar='')
 #alternative parameter
-optional.add_argument("-p", "--proc",help="The number of process to use for parallelizing the whole pipeline (default is 1)."\
+optional.add_argument("-p", "--proc",help="The number of process to use for parallelizing the whole pipeline (default is 1), run a sample in each process."\
     ,dest='proc',metavar='',default=1, type=int)
 optional.add_argument("-n", "--nproc",help="The number of CPUs to use for parallelizing the mapping with bowtie2(default is 1)."\
     ,dest='nproc',metavar='',default=1, type=int)
