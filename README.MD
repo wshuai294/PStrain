@@ -86,6 +86,14 @@ sample3_metaphlan3_output.txt
 ...
 ``` 
 Then PStrain will skip running metaphlan3, and use the existing metaphlan3 result files.
+## Run PStrain based on Metaphlan2
+
+```
+Example: python3 PStrain.py -p 10 -n 8 --similarity 0.95 -o ./outdir -c config.txt \
+--dbdir /home/wangshuai/strain/00.simulation/15.needle/db \
+--prior /home/wangshuai/strain/00.simulation/15.needle/db/prior_beta.pickle\
+--metaphlan2  /path-to/metaphlan2
+```
 ### command-line options
 ```
 PStrain: profile strains in shotgun metagenomic sequencing reads.
@@ -124,11 +132,6 @@ optional arguments:
   --prior               The file of prior knowledge of genotype frequencies in the population. Not providing this is also ok.
 ```
 
-## Citation
-Shuai Wang, Yiqi Jiang, Shuaicheng Li, PStrain: An Iterative Microbial Strains Profiling Algorithm for Shotgun Metagenomic Sequencing Data, Bioinformatics, , btaa1056, https://doi.org/10.1093/bioinformatics/btaa1056
-
-## Getting help
-Should you have any queries, please feel free to contact me, I will reply as soon as possible (swang66-c@my.cityu.edu.hk).
 
 ## Interpret output
 In the output directory specified by "-o", there are directories for each sample named by sample ID and one directory named merge.  
@@ -187,63 +190,23 @@ gi|545276179|ref|NZ_KE701962.1|:c548151-546829	312	C	A	1	1	1	0	0
 ```
 Gene, Locus, Ref, Alt clolumns represent the locus, following columns means the composition of the consensus sequence of each cluster.
 
-## Metaphlan2 version command-line options
-
+## Analyzing the results of PStrain
+First, we can use merge.py cluster the strains obtained from all the 
+samples with user-defined parameters.
 ```
-PStrain: profile strains in shotgun metagenomic sequencing reads.
+usage: python3 merge.py [options] -c/--conf <config file> -o/--outdir <output directory>
 
-Example: python3 PStrain.py -p 10 -n 8 --similarity 0.95 -o ./outdir -c config.txt \
---dbdir /home/wangshuai/strain/00.simulation/15.needle/db \
---prior /home/wangshuai/strain/00.simulation/15.needle/db/prior_beta.pickle
+Merge the results from all of the samples.
 
 required arguments:
-  -c , --conf       The configuration file of the input samples.
-  -o , --outdir     The output directory.
+  -c , --conf     The configuration file of the input samples, which is same as mentioned above.
+  -o , --outdir   The output directory.
 
 optional arguments:
-  -h, --help        show this help message and exit
-  -p , --proc       The number of process to use for parallelizing the whole
-                    pipeline (default is 1).
-  -n , --nproc      The number of CPUs to use for parallelizing the mapping
-                    with bowtie2(default is 1).
-  -w , --weight     The weight of genotype frequencies while computing loss,
-                    then the weight of linked read type frequencies is 1-w.
-                    The value is between 0~1. (default is 0.0)
-  --lambda1         The weight of prior knowledge while rectifying genotype
-                    frequencies. The value is between 0~1. (default is 0.0)
-  --lambda2         The weight of prior estimation while rectifying second
-                    order genotype frequencies. The value is between 0~1.
-                    (default is 0.0)
-  --species_dp      The minimum depth of species to be considered in strain
-                    profiling step (default is 5).
-  --snp_ratio       The SNVs of which the depth are less than the specific
-                    ratio of the species's mean depth would be removed.
-                    (default is 0.45).
-  --qual            The minimum quality score of SNVs to be considered in
-                    strain profiling step (default is 20).
-  --similarity      The similarity cutoff of hierachical clustering in merge
-                    step (default is 0.95).
-  --elbow           The cutoff of elbow method while identifying strains
-                    number. If the loss reduction ratio is less than the
-                    cutoff, then the strains number is determined.
-  --bowtie2         Path to bowtie2 binary. If your platform is not Linux, you
-                    need to specify your own bowtie2 binary.
-  --bowtie2-build   Path to bowtie2 binary. If your platform is not Linux, you
-                    need to specify your own bowtie2-build binary.
-  --samtools        Path to samtools binary (default version is in the
-                    packages path). If your platform is not Linux, you need to
-                    specify your own samtools binary.
-  --metaphlan2      Path to metaphlan2 script (default version is in the
-                    packages path).
-  --gatk            Path to gatk binary (default version is in the packages
-                    path).
-  --picard          Path to picard binary (default version is in the packages
-                    path).
-  --dbdir           Path to marker gene database (default is in the ../db
-                    path).
-  --prior           The file of prior knowledge of genotype frequencies in the
-                    population.
+  -h, --help      show this help message and exit
+  --similarity    The similarity cutoff of hierachical clustering in merge step (default is 0.95).
 ```
+Furthermore, we can adopt [**PStrain-tracer**](https://github.com/deepomicslab/PStrain-tracer) for downstream analysis and visulization.
 
 ## Single Species Mode
 If there is only one species, you can map reads and call SNPs by yourself. After that, you can use single_species.py from scripts/ folder to profile strains.
@@ -339,3 +302,9 @@ for line in f:
      pickle.dump(popu, f, pickle.HIGHEST_PROTOCOL) 
 ```
 Then please afford the file to PStrain with parameter --prior.
+
+## Citation
+Shuai Wang, Yiqi Jiang, Shuaicheng Li, PStrain: An Iterative Microbial Strains Profiling Algorithm for Shotgun Metagenomic Sequencing Data, Bioinformatics, , btaa1056, https://doi.org/10.1093/bioinformatics/btaa1056
+
+## Getting help
+Should you have any queries, please feel free to contact me, I will reply as soon as possible (swang66-c@my.cityu.edu.hk).
