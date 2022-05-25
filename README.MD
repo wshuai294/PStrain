@@ -6,6 +6,7 @@ cd PStrain/scripts
 python3 PStrain.py -h
 python3 PStrain_V30.py -h (to use Metaphlan3)
 ```
+Note: please adjust `--elbow` while using Metaphlan3, because its value is optimized for Metaphlan2.
 ## Dependencies 
 * Python 3.7.0 or above  
 * Python libraries:  
