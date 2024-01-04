@@ -17,18 +17,21 @@ python3 PStrain_V30.py -h (to use Metaphlan3)
     * pickle
     * gzip
 
-PStrain need two database file, one is the metaphlan2 marker gene database, the other is the prior genotype frequencies database. We have uploaded the two database in the db/ folder to the link https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing, you can directly download the db/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can appoint the path of these two database by corresponding arguments --dbdir and --prior.
+PStrain needs two database files, one is the metaphlan2 marker gene database, and the other is the prior genotype frequencies database. We have uploaded the two database in the db/ folder to the link https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing, you can directly download the db/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can appoint the path of these two databases by corresponding arguments --dbdir and --prior.
 
 
-PStrain relies on these softwares, we have uploaded the binary file of them to the folder packages/ in the link https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing, you can directly download the packages/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can install them by yourself, and appoint them by --samtools, --bowtie2-build, --bowtie2, --metaphlan2, --gatk, and --picard arguments.   
-* Third party pipelines:
+PStrain relies on these software packages, we have uploaded the binary file of them to the folder packages/ in the link https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing, you can directly download the packages/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can install them by yourself, and appoint them by --samtools, --bowtie2-build, --bowtie2, --metaphlan2, --gatk, and --picard arguments.   
+* Third-party pipelines:
     * SamTools-1.3.1
     * bowtie2-2.3.1
     * metaphlan2/3
     * GATK-3.5 (java-1.8.0_241)
     * picard-tools-2.1.0
 
- Then you can call PStrain.py in the scripts/ folder. 
+Then you can call PStrain.py in the scripts/ folder. 
+
+Note:
+- dependencies can also be obtained at [Zenodo](https://zenodo.org/doi/10.5281/zenodo.10457543).
 
 
 ## Basic Usage  
