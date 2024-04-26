@@ -17,10 +17,10 @@ python3 PStrain_V30.py -h (to use Metaphlan3)
     * pickle
     * gzip
 
-PStrain needs two database files, one is the metaphlan2 marker gene database, and the other is the prior genotype frequencies database. We have uploaded the two database in the db/ folder to the link https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing, you can directly download the db/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can appoint the path of these two databases by corresponding arguments --dbdir and --prior.
+PStrain needs two database files, one is the metaphlan2 marker gene database, and the other is the prior genotype frequencies database. We have uploaded the two database in the db/ folder to the [Google Drive](https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing), you can directly download the db/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can appoint the path of these two databases by corresponding arguments --dbdir and --prior.
 
 
-PStrain relies on these software packages, we have uploaded the binary file of them to the folder packages/ in the link https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing, you can directly download the packages/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can install them by yourself, and appoint them by --samtools, --bowtie2-build, --bowtie2, --metaphlan2, --gatk, and --picard arguments.   
+PStrain relies on these software packages, we have uploaded the binary file of them to the folder packages/ in the [Google Drive](https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing), you can directly download the packages/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can install them by yourself, and appoint them by --samtools, --bowtie2-build, --bowtie2, --metaphlan2, --gatk, and --picard arguments.   
 * Third-party pipelines:
     * SamTools-1.3.1
     * bowtie2-2.3.1
@@ -79,8 +79,8 @@ For metaphlan3, we do not build prior genotype frequencies database which will n
 In this way, PStrain will run Metaphlan3 to find the species profile in the sample and profile the strains in each species.
 
 If you have run metaphlan3 already for each file, to save runtime, you can build a file to record 
-the metaphlan3 resultfile of each sample in each line (In particular,  "--tax_lev s" should be added while running metaphlan3.). 
-Please afford this file to PStrain_V30.py with the parameter "--metaphlan3_output_files".
+the metaphlan3 resultfile of each sample in each line (In particular,  `--tax_lev s` should be added while running metaphlan3.). 
+Please afford this file to `PStrain_V30.py` with the parameter `--metaphlan3_output_files`.
 The file should be like
 ```
 sample1_metaphlan3_output.txt
