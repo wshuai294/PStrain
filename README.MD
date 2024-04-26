@@ -65,7 +65,7 @@ fq2:
 ```
 
 ## Run PStrain based on Metaphlan3
-PStrain also allows using Metaphlan3 to get species profiles. You can download the Metaphlan3 database db_V30 from https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing. Also you should install Metaphlan3 by yourself, and let PStrain know the path. Then you can run PStrain with 
+PStrain also allows using Metaphlan3 to get species profiles. You can download the Metaphlan3 database db_V30 from [Google Drive](https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing). Also, you should install Metaphlan3 by yourself, and let PStrain know the path. Then you can run PStrain with 
 ```
 Usage: python3 PStrain_V30.py [options] -c/--conf <config file> -o/--outdir <output directory> --metaphlan3 <path-to-metaphlan3>
 
