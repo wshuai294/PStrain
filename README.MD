@@ -15,7 +15,6 @@ python3 PStrain_V30.py -h (to use Metaphlan3)
     * Pulp
     * Pysam  
     * pickle
-    * gzip
 
 PStrain needs two database files, one is the metaphlan2 marker gene database, and the other is the prior genotype frequencies database. We have uploaded the two database in the db/ folder to the [Google Drive](https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing), you can directly download the db/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can appoint the path of these two databases by corresponding arguments --dbdir and --prior.
 
