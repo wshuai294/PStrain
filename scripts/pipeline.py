@@ -7,9 +7,12 @@ from reads_info import reads_info
 
 
 def run_metaphlan2(metaphlan2dir,metaphlan2,fq1,fq2,nproc,bowtie2):
+    print ("run metaphlan...")
     metaphlan2_file=metaphlan2dir+'/metaphlan2_output.txt'
-    if not os.path.isfile(metaphlan2_file):
-        metaphlan2_order='python2 %s %s,%s --input_type fastq --bowtie2_exe %s --nproc %s --bowtie2out %s/bowtie.out.bz2 >%s/metaphlan2_output.txt'%(metaphlan2,fq1,fq2,bowtie2,nproc,metaphlan2dir,metaphlan2dir)
+    if not os.path.isfile(metaphlan2_file) or os.stat(metaphlan2_file).st_size == 0:
+        metaphlan2_order='python3 %s %s,%s --input_type fastq --bowtie2_exe %s --nproc %s --bowtie2out %s/bowtie.out.bz2 >%s/metaphlan2_output.txt'%(metaphlan2,fq1,fq2,bowtie2,nproc,metaphlan2dir,metaphlan2dir)
+        # metaphlan2_order='%s %s,%s --input_type fastq --bowtie2_exe %s --nproc %s --bowtie2out %s/bowtie.out.bz2 >%s/metaphlan2_output.txt'%(metaphlan2,fq1,fq2,bowtie2,nproc,metaphlan2dir,metaphlan2dir)
+        print (metaphlan2_order)
         os.system(metaphlan2_order)
         os.system('rm %s/bowtie.out.bz2'%(metaphlan2dir))
         logging.info('Metaphlan2 is done.') 
@@ -52,7 +55,7 @@ def extract_ref(species_set,refdir,dbdir):
         if flag == True:
             print (line,file=merged_fh)
 def index_ref(refdir,picard,samtools,bowtie2_build):
-    #picard_index='java -jar %s CreateSequenceDictionary REFERENCE=%s/merged_ref.fa OUTPUT=%s/merged_ref.dict'%(picard,refdir,refdir)
+    # picard_index='java -jar %s CreateSequenceDictionary REFERENCE=%s/merged_ref.fa OUTPUT=%s/merged_ref.dict'%(picard,refdir,refdir)
     dict_index='%s dict %s/merged_ref.fa > %s/merged_ref.dict'%(samtools,refdir,refdir)
     samtools_index='%s faidx %s/merged_ref.fa'%(samtools,refdir)
     bowtie2_index='%s -f %s/merged_ref.fa %s/merged_ref'%(bowtie2_build,refdir,refdir)
@@ -492,14 +495,18 @@ def multi_samples(outdir,cfgfile,arg_list,popu):
             fq2='single_end'
         single_run(sample_name,outdir,fq1,fq2,arg_list,popu)
         print ('Sample %s is done.'%(sample_name))
-def multiproc(outdir,cfgfile,arg_list):
+def multiproc(outdir,cfgfile,arg_list, args):
     prior=arg_list[15]
-    with open(prior, 'rb') as f:
-        popu = pickle.load(f)
-    f.close()
-    # popu = {}
-    print ('Database is loaded.')
-    logging.info('Database is loaded.')
+
+    if os.path.isfile(prior) and args.skip_prior:
+        with open(prior, 'rb') as f:
+            popu = pickle.load(f)
+        f.close()
+        # popu = {}
+        print ('Database is loaded.')
+        logging.info('Database is loaded.')
+    else:
+        popu = {}
 
     if not os.path.exists(outdir):
         os.system('mkdir '+outdir)
@@ -513,6 +520,7 @@ def multiproc(outdir,cfgfile,arg_list):
     pool_list=[]    
     for i in range(sample_num):
         sample_name=cfg_list[4*i+1].split(':')[1].strip()
+        # print (f"config {sample_name}")
         fq1=cfg_list[4*i+2].split(':')[1].strip()
         fq2_array=cfg_list[4*i+3].split(':')
         if len(fq2_array) == 2 and len(fq2_array[1].strip())>0:

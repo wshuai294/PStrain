@@ -12,7 +12,7 @@ conda activate pstrain3
 bash scripts/pstrain_index_metaphlan3.sh   #constructing the reference for Metaphlan3 and PStrain
 python3 scripts/PStrain_V30.py --help
 ```
-Test PStrain (with Metaphlan3) by:
+test PStrain (with Metaphlan3) by:
 ```
 cd test/
 bash test_PStrain_V30.sh
@@ -28,9 +28,9 @@ conda env create --name pstrain2 -f pstrain_metaphlan2_env.yml
 conda activate pstrain2
 python3 scripts/PStrain.py -h
 ```
-PStrain (with Metaphlan2) needs a metaphlan2 marker gene database and a prior genotype frequencies database, which can be obtained from the db/ folder of [Google Drive](https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing). you can directly download the db/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can appoint the path of these two databases by corresponding arguments --dbdir and --prior. The two databases can also be obtained at [Zenodo](https://zenodo.org/doi/10.5281/zenodo.10457543).
+Download `db/` and `packages/` from [Google Drive](https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing) or [Zenodo](https://zenodo.org/doi/10.5281/zenodo.10457543), and put them in the same path with the scripts/ folder. Also, you can appoint the path of the dependencies by `--dbdir`, `--prior` and `--metaphlan2`. 
 
-Test PStrain (with Metaphlan2) by:
+test PStrain (with Metaphlan2) by:
 ```
 cd test/
 bash test_run.sh
@@ -72,33 +72,61 @@ usage: python3 PStrain_V30.py [options] -c/--conf <config file> -o/--outdir <out
 PStrain: profile strains in shotgun metagenomic sequencing reads.
 
 required arguments:
-  -c , --conf           The configuration file of the input samples. (default: None)
+  -c , --conf           The configuration file of the input samples. (default:
+                        None)
   -o , --outdir         The output directory. (default: None)
-  --bowtie2db           Path to metaphlan bowtie2db. (default: /home/wangshuai/softwares/PStrain/scripts/../mpa_v31_CHOCOPhlAn_201901)
+  --bowtie2db           Path to metaphlan bowtie2db. (default: /home/wangshuai
+                        /softwares/PStrain/scripts/../mpa_v31_CHOCOPhlAn_20190
+                        1)
   -x , --metaphlan_index
-                        Path to metaphlan bowtie2db index. (default: mpa_v31_CHOCOPhlAn_201901)
+                        Path to metaphlan bowtie2db index. (default:
+                        mpa_v31_CHOCOPhlAn_201901)
 
-options:
+optional arguments:
   -h, --help            show this help message and exit
-  -p , --proc           The number of process to use for parallelizing the whole pipeline, run a sample in each process. (default: 1)
-  -n , --nproc          The number of CPUs to use for parallelizing the mapping with bowtie2. (default: 1)
-  -w , --weight         The weight of genotype frequencies while computing loss, then the weight of linked read type frequencies is 1-w. The value is between 0~1. (default: 0.3)
-  --lambda1             The weight of prior knowledge while rectifying genotype frequencies. The value is between 0~1. (default: 0.0)
-  --lambda2             The weight of prior estimation while rectifying second order genotype frequencies. The value is between 0~1. (default: 0.0)
-  --species_dp          The minimum depth of species to be considered in strain profiling step (default is 5). (default: 5)
-  --snp_ratio           The SNVs of which the depth are less than the specific ratio of the species's mean depth would be removed. (default: 0.45)
-  --qual                The minimum quality score of SNVs to be considered in strain profiling step. (default: 20)
-  --similarity          The similarity cutoff of hierachical clustering in merge step. (default: 0.95)
-  --elbow               The cutoff of elbow method while identifying strains number. If the loss reduction ratio is less than the cutoff, then the strains number is determined. (default: 0.24)
+  -p , --proc           The number of process to use for parallelizing the
+                        whole pipeline, run a sample in each process.
+                        (default: 1)
+  -n , --nproc          The number of CPUs to use for parallelizing the
+                        mapping with bowtie2. (default: 1)
+  -w , --weight         The weight of genotype frequencies while computing
+                        loss, then the weight of linked read type frequencies
+                        is 1-w. The value is between 0~1. (default: 0.3)
+  --lambda1             The weight of prior knowledge while rectifying
+                        genotype frequencies. The value is between 0~1.
+                        (default: 0.0)
+  --lambda2             The weight of prior estimation while rectifying second
+                        order genotype frequencies. The value is between 0~1.
+                        (default: 0.0)
+  --species_dp          The minimum depth of species to be considered in
+                        strain profiling step (default is 5). (default: 5)
+  --snp_ratio           The SNVs of which the depth are less than the specific
+                        ratio of the species's mean depth would be removed.
+                        (default: 0.45)
+  --qual                The minimum quality score of SNVs to be considered in
+                        strain profiling step. (default: 20)
+  --similarity          The similarity cutoff of hierachical clustering in
+                        merge step. (default: 0.95)
+  --elbow               The cutoff of elbow method while identifying strains
+                        number. If the loss reduction ratio is less than the
+                        cutoff, then the strains number is determined.
+                        (default: 0.24)
   --bowtie2             Path to bowtie2 binary. (default: bowtie2)
   --bowtie2-build       Path to bowtie2 binary. (default: bowtie2-build)
   --samtools            Path to samtools binary. (default: samtools)
   --metaphlan           Path to metaphlan. (default: metaphlan)
   --metaphlan_output_files
-                        If you have run metaphlan already, give metaphlan result file in each line, the order should be the same with config file. In particular, '--tax_lev s' should be added while running metaphlan. (default: )
-  --gatk                Path to gatk binary. (default: /home/wangshuai/softwares/PStrain/scripts//GenomeAnalysisTK.jar)
-  --picard              Path to picard binary. (default: /home/wangshuai/softwares/PStrain/scripts//picard.jar)
-  --prior               The file of prior knowledge of genotype frequencies in the population. Not providing this is also ok. (default: None)
+                        If you have run metaphlan already, give metaphlan
+                        result file in each line, the order should be the same
+                        with config file. In particular, '--tax_lev s' should
+                        be added while running metaphlan. (default: )
+  --gatk                Path to gatk binary. (default: /home/wangshuai/softwar
+                        es/PStrain/scripts//GenomeAnalysisTK.jar)
+  --picard              Path to picard binary. (default:
+                        /home/wangshuai/softwares/PStrain/scripts//picard.jar)
+  --prior               The file of prior knowledge of genotype frequencies in
+                        the population. Not providing this is also ok.
+                        (default: None)
 ```
 
 If you have run metaphlan3 already for each file, to save runtime, you can build a file to record 
@@ -118,7 +146,7 @@ python3 PStrain_V30.py --metaphlan3_output_files exisiting_metaphlan3_results.tx
 
 
 
-For metaphlan3, we do not build prior genotype frequencies database which will not impact the performance very much. So just ignore --prior parameter. ALso, you can build a prior genotype frequencies database by yourself. I will show how to do this in the following section.
+For metaphlan3, we have not built prior genotype frequencies database which will not impact the performance very much. So just ignore --prior parameter. ALso, you can build a prior genotype frequencies database by yourself. I will show how to do this in the following section.
 In this way, PStrain will run Metaphlan3 to find the species profile in the sample and profile the strains in each species.
 
 
@@ -126,56 +154,73 @@ In this way, PStrain will run Metaphlan3 to find the species profile in the samp
 
 
 ### Run PStrain based on Metaphlan2
-
+Example:
 ```
 Example: python3 PStrain.py -p 10 -n 8 --similarity 0.95 -o ./outdir -c config.txt \
 --dbdir /home/wangshuai/strain/00.simulation/15.needle/db \
 --prior /home/wangshuai/strain/00.simulation/15.needle/db/prior_beta.pickle\
 --metaphlan2  /path-to/metaphlan2
 ```
-### command-line options
+Command:
 ```
 PStrain: profile strains in shotgun metagenomic sequencing reads.
 
 required arguments:
-  -c , --conf           The configuration file of the input samples.
-  -o , --outdir         The output directory.
+  -c , --conf       The configuration file of the input samples. (default:
+                    None)
+  -o , --outdir     The output directory. (default: None)
+  --dbdir           Path to marker gene database, can be downloaded from
+                    https://zenodo.org/doi/10.5281/zenodo.10457543. (default:
+                    /home/wangshuai/softwares/PStrain/scripts/../db/)
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -p , --proc           The number of process to use for parallelizing the whole pipeline (default is 1).
-  -n , --nproc          The number of CPUs to use for parallelizing the mapping with bowtie2(default is 1).
-  -w , --weight         The weight of genotype frequencies while computing loss, then the weight of linked read type frequencies is 1-w. The
-                        value is between 0~1. (default is 0.0)
-  --lambda1             The weight of prior knowledge while rectifying genotype frequencies. The value is between 0~1. (default is 0.0)
-  --lambda2             The weight of prior estimation while rectifying second order genotype frequencies. The value is between 0~1. (default is
-                        0.0)
-  --species_dp          The minimum depth of species to be considered in strain profiling step (default is 5).
-  --snp_ratio           The SNVs of which the depth are less than the specific ratio of the species's mean depth would be removed. (default is
-                        0.45).
-  --qual                The minimum quality score of SNVs to be considered in strain profiling step (default is 20).
-  --similarity          The similarity cutoff of hierachical clustering in merge step (default is 0.95).
-  --elbow               The cutoff of elbow method while identifying strains number. If the loss reduction ratio is less than the cutoff, then
-                        the strains number is determined. Default is 0.24.
-  --bowtie2             Path to bowtie2 binary. If your platform is not Linux, you need to specify your own bowtie2 binary.
-  --bowtie2-build       Path to bowtie2 binary. If your platform is not Linux, you need to specify your own bowtie2-build binary.
-  --samtools            Path to samtools binary (default version is in the packages path). If your platform is not Linux, you need to specify
-                        your own samtools binary.
-  --metaphlan3          Path to metaphlan3 (default version is in the packages path).
-  --metaphlan3_output_files
-                        If you have run metaphlan3 already, give metaphlan3 result file in each line, the order should be the same with config
-                        file. In particular, '--tax_lev s' should be added while running metaphlan3.
-  --gatk                Path to gatk binary (default version is in the packages path).
-  --picard              Path to picard binary (default version is in the packages path).
-  --dbdir_V30           Path to marker gene database (default is in the ../db_V30 path).
-  --prior               The file of prior knowledge of genotype frequencies in the population. Not providing this is also ok.
+  -h, --help        show this help message and exit
+  -p , --proc       The number of process to use for parallelizing the whole
+                    pipeline, run a sample in each process. (default: 1)
+  -n , --nproc      The number of CPUs to use for parallelizing the mapping
+                    with bowtie2. (default: 1)
+  -w , --weight     The weight of genotype frequencies while computing loss,
+                    then the weight of linked read type frequencies is 1-w.
+                    The value is between 0~1. (default: 0.3)
+  --lambda1         The weight of prior knowledge while rectifying genotype
+                    frequencies. The value is between 0~1. (default: 0.0)
+  --lambda2         The weight of prior estimation while rectifying second
+                    order genotype frequencies. The value is between 0~1.
+                    (default: 0.0)
+  --species_dp      The minimum depth of species to be considered in strain
+                    profiling step. (default: 5)
+  --snp_ratio       The SNVs of which the depth are less than the specific
+                    ratio of the species's mean depth would be removed.
+                    (default: 0.45)
+  --qual            The minimum quality score of SNVs to be considered in
+                    strain profiling step. (default: 20)
+  --similarity      The similarity cutoff of hierachical clustering in merge
+                    step. (default: 0.95)
+  --elbow           The cutoff of elbow method while identifying strains
+                    number. If the loss reduction ratio is less than the
+                    cutoff, then the strains number is determined. (default:
+                    0.24)
+  --bowtie2         Path to bowtie2 binary. (default: bowtie2)
+  --bowtie2-build   Path to bowtie2 binary. (default: bowtie2-build)
+  --samtools        Path to samtools binary. (default: samtools)
+  --metaphlan       Path to metaphlan. (default: /home/wangshuai/softwares/PSt
+                    rain/scripts/../packages/metaphlan2/metaphlan2.py)
+  --gatk            Path to gatk binary. (default: /home/wangshuai/softwares/P
+                    Strain/scripts//GenomeAnalysisTK.jar)
+  --picard          Path to picard binary. (default:
+                    /home/wangshuai/softwares/PStrain/scripts//picard.jar)
+  --prior           The file of prior knowledge of genotype frequencies in the
+                    population. (default: /home/wangshuai/softwares/PStrain/sc
+                    ripts/../db/prior_beta.pickle)
+  --skip_prior      Whether use prior knowledge of genotype frequencies.
+                    (default: False)
 ```
 
 
 ## Interpret output
-In the output directory specified by "-o", there are directories for each sample named by sample ID and one directory named merge.  
+In the output directory specified by `-o`, there are directories for each sample named by sample ID and one directory named merge.  
 
-In the directory of one specific sample, you will find a folder called "result", in which you can find the below files and directories:
+In the directory of one specific sample, you will find a folder called `result`, in which you can find the below files and directories:
 ```
 strain_RA.txt  
 strain_merged_RA.txt 
@@ -184,7 +229,7 @@ species2_seq.txt
 ...
 
 ```
-The formats for "strain_RA.txt" and "strain_merged_RA.txt" are similar. An example is as below:
+The formats for `strain_RA.txt` and `strain_merged_RA.txt` are similar. An example is as below:
 ```
 # Species	Species_RA	Strain_ID	Cluster_ID	Strain_RA
 Escherichia_coli 88.00 str-1 clu-1 0.1
@@ -212,13 +257,13 @@ species_2_seq.txt
 species_2_clu.txt
 ...
 ```
-* "strain_number.txt" contains the strain number of each species in  all of the samples.
+* `strain_number.txt` contains the strain number of each species in  all of the samples.
 
-* "species_seq.txt" contains the strain sequence of in all of the samples.
+* `species_seq.txt` contains the strain sequence of in all of the samples.
 
-* "species_clu.txt" contains the consensus sequence of each strains cluster in all of the samples.
+* `species_clu.txt` contains the consensus sequence of each strains cluster in all of the samples.
 
-The file listed below is one *_clu.txt example, the formate of *_clu.txt and *_seq.txt are similar.
+The file listed below is one `*_clu.txt` example, the formate of `*_clu.txt` and `*_seq.txt` are similar.
 ```
 # Gene	Locus	Ref	Alt	clu-1	clu-2	clu-3	clu-4	clu-5	
 gi|545276179|ref|NZ_KE701962.1|:c548151-546829	90	T	G	1	0	0	1	1	
