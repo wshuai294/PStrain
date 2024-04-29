@@ -6,24 +6,26 @@ import logging
 from reads_info import reads_info
 
 
-def run_metaphlan3(metaphlan3dir,metaphlan3,fq1,fq2,nproc,bowtie2):
-    metaphlan3_file=metaphlan3dir+'/metaphlan3_output.txt'
-    if not os.path.isfile(metaphlan3_file):
-        metaphlan3_order='%s %s,%s --input_type fastq --tax_lev s --bowtie2_exe %s --nproc %s \
-        --bowtie2out %s/bowtie.out.bz2 >%s/metaphlan3_output.txt'%(metaphlan3,fq1,fq2,bowtie2,nproc,metaphlan3dir,metaphlan3dir)
-        os.system(metaphlan3_order)
-        os.system('rm %s/bowtie.out.bz2'%(metaphlan3dir))
-        logging.info('Metaphlan3 is done.') 
+def run_metaphlan(metaphlandir,metaphlan,fq1,fq2,nproc,bowtie2,args):
+    print ("run metaphlan...")
+    metaphlan_file=metaphlandir+'/metaphlan_output.txt'
+    if not os.path.isfile(metaphlan_file) or os.stat(metaphlan_file).st_size == 0:
+        metaphlan_order='%s %s,%s --input_type fastq --bowtie2db %s -x %s --tax_lev s --bowtie2_exe %s --nproc %s \
+        --bowtie2out %s/bowtie.out.bz2 >%s/metaphlan_output.txt'%(metaphlan,fq1,fq2,args.bowtie2db, args.metaphlan_index,bowtie2,nproc,metaphlandir,metaphlandir)
+        print (metaphlan_order, "\n")
+        os.system(metaphlan_order)
+        os.system('rm %s/bowtie.out.bz2'%(metaphlandir))
+        logging.info('Metaphlan is done.') 
     else:
-        logging.info('Metaphlan3 result exists already.')
-def read_metaphlan3(metaphlan3dir,prior_metaphlan3_out):
-    if prior_metaphlan3_out == '':
-        metaphlan3_file=metaphlan3dir+'/metaphlan3_output.txt'
+        logging.info('Metaphlan result exists already.')
+def read_metaphlan(metaphlandir,prior_metaphlan_out):
+    if prior_metaphlan_out == '':
+        metaphlan_file=metaphlandir+'/metaphlan_output.txt'
     else:
-        metaphlan3_file = prior_metaphlan3_out
+        metaphlan_file = prior_metaphlan_out
     species_set=[]
     sp_ra={}
-    for line in open(metaphlan3_file,'r'):
+    for line in open(metaphlan_file,'r'):
         line=line.strip()
         if line[0] == '#':
             continue
@@ -32,11 +34,15 @@ def read_metaphlan3(metaphlan3dir,prior_metaphlan3_out):
             species_set.append(array[0])
             sp_ra[array[0]]=float(array[2]) 
     return species_set,sp_ra
-def extract_ref(species_set,refdir,dbdir):
+def extract_ref(species_set,refdir,args):
     # dbdir='../db_v20/'
     gene_dict={}
     # species_set=['s__Escherichia_coli']
-    for line in gzip.open(dbdir+'/species_markers_V30.txt.gz','rt'):
+    metaphalan_database_fna = args.bowtie2db + "/" + args.metaphlan_index + ".fna"
+    gene_species_pair = args.bowtie2db + "/" + args.metaphlan_index + ".gene_species_pair.txt"
+
+    # for line in gzip.open(dbdir+'/species_markers_V30.txt.gz','rt'):
+    for line in open(gene_species_pair,'r'):
         line=line.strip()
         array=line.split()
         for sp in species_set:
@@ -44,7 +50,8 @@ def extract_ref(species_set,refdir,dbdir):
                 gene_dict['>'+array[0]]=sp
     flag=False
     merged_fh=open(refdir+'/merged_ref.fa','w')
-    for line in gzip.open(dbdir+'/marker_gene_V30.fna.gz','rt'):
+    # for line in gzip.open(dbdir+'/marker_gene_V30.fna.gz','rt'):
+    for line in open(metaphalan_database_fna, 'r'):
         line=line.strip()       
         if line[0] == '>':
             # if line in gene_dict.keys() and not re.search(',',line):
@@ -334,18 +341,18 @@ def profiling(data,weight,lambda1,lambda2,popu,elbow,low_dp_sp,sample):
     logging.info('Iteration is done for %s.'%(sample))  
     logging.info('Final loss score is %s for %s in the optimization.'%(final_loss, sample))  
     return species_alpha,species_seq,species_snp
-def single_run(sample,outdir,fq1,fq2,arg_list,popu,prior_metaphlan3_out):
+def single_run(sample,outdir,fq1,fq2,arg_list,popu,prior_metaphlan_out, args):
     nproc=arg_list[0] 
     species_dp=arg_list[1]
     snp_dp=arg_list[2]
-    dbdir=arg_list[3]
+    # dbdir=arg_list[3]
     picard=arg_list[4]
     samtools=arg_list[5]
     bowtie2_build=arg_list[6]
     bowtie2=arg_list[7]
     # extractHAIRS=arg_list[8]
     gatk=arg_list[9]
-    metaphlan3=arg_list[10]
+    metaphlan=arg_list[10]
     weight=arg_list[12]
     lambda1=arg_list[13]
     lambda2=arg_list[14]
@@ -354,15 +361,15 @@ def single_run(sample,outdir,fq1,fq2,arg_list,popu,prior_metaphlan3_out):
     qual=arg_list[17]
     outdir=outdir+'/%s/'%(sample)
     refdir=outdir+'/ref/'
-    metaphlan3dir=outdir+'/metaphlan3/'
+    metaphlandir=outdir+'/metaphlan/'
     mapdir=outdir+'/map'
     resultdir=outdir+'/result/'
     if not os.path.exists(outdir):
         os.system('mkdir '+outdir)
     if not os.path.exists(refdir):
         os.system('mkdir '+refdir)
-    if not os.path.exists(metaphlan3dir):
-        os.system('mkdir '+metaphlan3dir)
+    if not os.path.exists(metaphlandir):
+        os.system('mkdir '+metaphlandir)
     if not os.path.exists(mapdir):    
         os.system('mkdir '+mapdir)
     if not os.path.exists(resultdir):
@@ -378,17 +385,17 @@ def single_run(sample,outdir,fq1,fq2,arg_list,popu,prior_metaphlan3_out):
     #                     filemode='w')  
     vcffile,bamfile='%s/mapped.vcf.gz'%(mapdir),'%s/mapped.bam'%(mapdir)
     # if os.path.isfile(vcffile) and os.path.isfile(bamfile):
-    #     species_set,sp_ra=read_metaphlan3(metaphlan3dir)
+    #     species_set,sp_ra=read_metaphlan(metaphlandir)
     #     removed_gene,low_dp_sp=copy_number(mapdir,species_dp,samtools)
     #     dict_species_depth = depth_of_each_species(mapdir)
     # else:
-    if not os.path.isfile(prior_metaphlan3_out):
-        logging.info('Start Running Metaphlan3 for %s...'%(sample))
-        run_metaphlan3(metaphlan3dir,metaphlan3,fq1,fq2,nproc,bowtie2)
+    if not os.path.isfile(prior_metaphlan_out):
+        logging.info('Start Running metaphlan for %s...'%(sample))
+        run_metaphlan(metaphlandir,metaphlan,fq1,fq2,nproc,bowtie2,args)
     else:
-        logging.info('Metaphlan3 result is found for %s...'%(sample))
-    species_set,sp_ra=read_metaphlan3(metaphlan3dir,prior_metaphlan3_out)
-    extract_ref(species_set,refdir,dbdir)
+        logging.info('metaphlan result is found for %s...'%(sample))
+    species_set,sp_ra=read_metaphlan(metaphlandir,prior_metaphlan_out)
+    extract_ref(species_set,refdir, args)
     logging.info('Sample specific marker genes are extracted for %s.'%(sample))
     index_ref(refdir,picard,samtools,bowtie2_build)
     bowtie2_map(bowtie2,samtools,refdir,mapdir,fq1,fq2,nproc,picard) 
@@ -511,14 +518,14 @@ def multi_samples(outdir,cfgfile,arg_list,popu):
             fq2='single_end'
         single_run(sample_name,outdir,fq1,fq2,arg_list,popu)
         print ('Sample %s is done.'%(sample_name))
-def multiproc(outdir,cfgfile,arg_list,metaphlan3_output_files):
+def multiproc(outdir,cfgfile,arg_list,metaphlan_output_files, args):
     
     logging.info("start...")
-    prior_metaphlan3 = {}
-    if os.path.isfile(metaphlan3_output_files):
+    prior_metaphlan = {}
+    if os.path.isfile(metaphlan_output_files):
         i = 0
-        for line in open(metaphlan3_output_files):
-            prior_metaphlan3[i] = line.strip()
+        for line in open(metaphlan_output_files):
+            prior_metaphlan[i] = line.strip()
             i += 1
 
     prior=arg_list[15]  
@@ -542,10 +549,10 @@ def multiproc(outdir,cfgfile,arg_list,metaphlan3_output_files):
     pool=multiprocessing.Pool(processes=arg_list[11])
     pool_list=[]    
     for i in range(sample_num):
-        if i in prior_metaphlan3.keys():
-            prior_metaphlan3_out = prior_metaphlan3[i]
+        if i in prior_metaphlan.keys():
+            prior_metaphlan_out = prior_metaphlan[i]
         else:
-            prior_metaphlan3_out = ''
+            prior_metaphlan_out = ''
         sample_name=cfg_list[4*i+1].split(':')[1].strip()
         fq1=cfg_list[4*i+2].split(':')[1].strip()
         fq2_array=cfg_list[4*i+3].split(':')
@@ -554,7 +561,7 @@ def multiproc(outdir,cfgfile,arg_list,metaphlan3_output_files):
         else:
             fq2='single_end'
         # if not os.path.isfile('/mnt/disk2_workspace/wangshuai/00.strain/01.real_strains/real_data/CRC_new/%s/result/strain_RA.txt'%(sample_name)):
-        pool_list.append(pool.apply_async(single_run,(sample_name,outdir,fq1,fq2,arg_list,popu,prior_metaphlan3_out,)))
+        pool_list.append(pool.apply_async(single_run,(sample_name,outdir,fq1,fq2,arg_list,popu,prior_metaphlan_out,args)))
     pool.close()
     pool.join()
         

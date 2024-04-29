@@ -1,3 +1,0 @@
-# Species	Species_RA	Strain_ID	Strain_Freq	Strain_RA
-Escherichia_coli 100.0 str-1 0.487179 48.7179
-Escherichia_coli 100.0 str-2 0.512821 51.2821

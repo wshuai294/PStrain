@@ -1,81 +1,105 @@
 # PStrain: An Iterative Microbial Strains Profiling Algorithm for Shotgun Metagenomic Sequencing Data
 
-## Install  
+## Quick start
+
+### PStrain with Metaphlan3
 ```
-cd PStrain/scripts
-python3 PStrain.py -h
-python3 PStrain_V30.py -h (to use Metaphlan3)
+git clone git@github.com:wshuai294/PStrain.git --depth 1
+cd PStrain/
+conda env create --name pstrain3 -f pstrain_metaphlan3_env.yml
+conda activate pstrain3
+
+bash scripts/pstrain_index_metaphlan3.sh   #constructing the reference for Metaphlan3 and PStrain
+python3 scripts/PStrain_V30.py --help
 ```
-## Dependencies 
-* Python 3.7.0 or above  
-* Python libraries:  
-    * Numpy  
-    * Scipy  
-    * Pandas  
-    * Pulp
-    * Pysam  
-    * pickle
-
-PStrain needs two database files, one is the metaphlan2 marker gene database, and the other is the prior genotype frequencies database. We have uploaded the two database in the db/ folder to the [Google Drive](https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing), you can directly download the db/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can appoint the path of these two databases by corresponding arguments --dbdir and --prior.
+Test PStrain (with Metaphlan3) by:
+```
+cd test/
+bash test_PStrain_V30.sh
+```
 
 
-PStrain relies on these software packages, we have uploaded the binary file of them to the folder packages/ in the [Google Drive](https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing), you can directly download the packages/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can install them by yourself, and appoint them by --samtools, --bowtie2-build, --bowtie2, --metaphlan2, --gatk, and --picard arguments.   
-* Third-party pipelines:
-    * SamTools-1.3.1
-    * bowtie2-2.3.1
-    * metaphlan2/3
-    * GATK-3.5 (java-1.8.0_241)
-    * picard-tools-2.1.0
+### PStrain with Metaphlan2
+```
+git clone git@github.com:wshuai294/PStrain.git --depth 1
+cd PStrain/
 
-Then you can call PStrain.py in the scripts/ folder. 
+conda env create --name pstrain2 -f pstrain_metaphlan2_env.yml
+conda activate pstrain2
+python3 scripts/PStrain.py -h
+```
+PStrain (with Metaphlan2) needs a metaphlan2 marker gene database and a prior genotype frequencies database, which can be obtained from the db/ folder of [Google Drive](https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing). you can directly download the db/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can appoint the path of these two databases by corresponding arguments --dbdir and --prior. The two databases can also be obtained at [Zenodo](https://zenodo.org/doi/10.5281/zenodo.10457543).
 
-Note:
-- dependencies can also be obtained at [Zenodo](https://zenodo.org/doi/10.5281/zenodo.10457543).
+Test PStrain (with Metaphlan2) by:
+```
+cd test/
+bash test_run.sh
+```
 
 
 ## Basic Usage  
 
-```
-Usage: python3 PStrain.py [options] -c/--conf <config file> -o/--outdir <output directory>
-```
-The config file should follow the format, for Pair-end reads:
-```
-//  
-sample: [sample1_ID]  
-fq1: [forward reads fastq]  
-fq2: [reverse/mate reads fastq]  
-//  
-sample: [sample2_ID]  
-fq1: [forward reads fastq]  
-fq2: [reverse/mate reads fastq]  
-... 
-```
-For Single-end reads:
-```
-//  
-sample: [sample1_ID]  
-fq1: [single end reads fastq]  
-fq2:  
-//  
-sample: [sample2_ID]  
-fq1: [single end reads fastq]  
-fq2:  
-... 
-```
+### Main functions
+| Scripts | Description |
+| --- | --- |
+|scripts/PStrain_V30.py| Strain profiling based on the Metaphlan3|
+|scripts/PStrain.py| Strain profiling based on the Metaphlan2|
+|scripts/single_species.py| phase variants for a single genome, based on the BAM and VCF file|
+|scripts/merge.py| Merge the strain results for downstream analyses  |
 
-## Run PStrain based on Metaphlan3
-PStrain also allows using Metaphlan3 to get species profiles. You can download the Metaphlan3 database db_V30 from [Google Drive](https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing). Also, you should install Metaphlan3 by yourself, and let PStrain know the path. Then you can run PStrain with 
+
+### Run PStrain based on Metaphlan3
 ```
-Usage: python3 PStrain_V30.py [options] -c/--conf <config file> -o/--outdir <output directory> --metaphlan3 <path-to-metaphlan3>
+usage: python3 PStrain_V30.py [options] -c/--conf <config file> -o/--outdir <output directory> --bowtie2db <metaphlan database> -x <metaphlan db index>
 
-Example: python3 PStrain_V30.py --metaphlan3 /home/wangshuai/miniconda3/bin/metaphlan -c test.config -o test_dir
+    Example: python3 PStrain_V30.py -c config.txt -o outdir/ --bowtie2db ../mpa_v31_CHOCOPhlAn_201901/ -x mpa_v31_CHOCOPhlAn_201901
 
-or
+    The config file should follow the format:
 
-python3 PStrain_V30.py --metaphlan3_output_files exisiting_metaphlan3_results.txt -c test.config -o test_dir 
+    //
+    sample: [sample1_ID]
+    fq1: [forward reads fastq]
+    fq2: [reverse/mate reads fastq]
+    //
+    sample: [sample2_ID]
+    fq1: [forward reads fastq]
+    fq2: [reverse/mate reads fastq]
+    ...
+
+    Help information can be found by python3 PStrain_V30.py -h/--help, config file format for single end reads , and additional information can be found    in README.MD or https://github.com/wshuai294/PStrain.
+
+
+PStrain: profile strains in shotgun metagenomic sequencing reads.
+
+required arguments:
+  -c , --conf           The configuration file of the input samples. (default: None)
+  -o , --outdir         The output directory. (default: None)
+  --bowtie2db           Path to metaphlan bowtie2db. (default: /home/wangshuai/softwares/PStrain/scripts/../mpa_v31_CHOCOPhlAn_201901)
+  -x , --metaphlan_index
+                        Path to metaphlan bowtie2db index. (default: mpa_v31_CHOCOPhlAn_201901)
+
+options:
+  -h, --help            show this help message and exit
+  -p , --proc           The number of process to use for parallelizing the whole pipeline, run a sample in each process. (default: 1)
+  -n , --nproc          The number of CPUs to use for parallelizing the mapping with bowtie2. (default: 1)
+  -w , --weight         The weight of genotype frequencies while computing loss, then the weight of linked read type frequencies is 1-w. The value is between 0~1. (default: 0.3)
+  --lambda1             The weight of prior knowledge while rectifying genotype frequencies. The value is between 0~1. (default: 0.0)
+  --lambda2             The weight of prior estimation while rectifying second order genotype frequencies. The value is between 0~1. (default: 0.0)
+  --species_dp          The minimum depth of species to be considered in strain profiling step (default is 5). (default: 5)
+  --snp_ratio           The SNVs of which the depth are less than the specific ratio of the species's mean depth would be removed. (default: 0.45)
+  --qual                The minimum quality score of SNVs to be considered in strain profiling step. (default: 20)
+  --similarity          The similarity cutoff of hierachical clustering in merge step. (default: 0.95)
+  --elbow               The cutoff of elbow method while identifying strains number. If the loss reduction ratio is less than the cutoff, then the strains number is determined. (default: 0.24)
+  --bowtie2             Path to bowtie2 binary. (default: bowtie2)
+  --bowtie2-build       Path to bowtie2 binary. (default: bowtie2-build)
+  --samtools            Path to samtools binary. (default: samtools)
+  --metaphlan           Path to metaphlan. (default: metaphlan)
+  --metaphlan_output_files
+                        If you have run metaphlan already, give metaphlan result file in each line, the order should be the same with config file. In particular, '--tax_lev s' should be added while running metaphlan. (default: )
+  --gatk                Path to gatk binary. (default: /home/wangshuai/softwares/PStrain/scripts//GenomeAnalysisTK.jar)
+  --picard              Path to picard binary. (default: /home/wangshuai/softwares/PStrain/scripts//picard.jar)
+  --prior               The file of prior knowledge of genotype frequencies in the population. Not providing this is also ok. (default: None)
 ```
-For metaphlan3, we do not build prior genotype frequencies database which will not impact the performance very much. So just ignore --prior parameter. ALso, you can build a prior genotype frequencies database by yourself. I will show how to do this in the following section.
-In this way, PStrain will run Metaphlan3 to find the species profile in the sample and profile the strains in each species.
 
 If you have run metaphlan3 already for each file, to save runtime, you can build a file to record 
 the metaphlan3 resultfile of each sample in each line (In particular,  `--tax_lev s` should be added while running metaphlan3.). 
@@ -88,7 +112,20 @@ sample3_metaphlan3_output.txt
 ...
 ``` 
 Then PStrain will skip running metaphlan3, and use the existing metaphlan3 result files.
-## Run PStrain based on Metaphlan2
+```
+python3 PStrain_V30.py --metaphlan3_output_files exisiting_metaphlan3_results.txt -c test.config -o test_dir 
+```
+
+
+
+For metaphlan3, we do not build prior genotype frequencies database which will not impact the performance very much. So just ignore --prior parameter. ALso, you can build a prior genotype frequencies database by yourself. I will show how to do this in the following section.
+In this way, PStrain will run Metaphlan3 to find the species profile in the sample and profile the strains in each species.
+
+
+
+
+
+### Run PStrain based on Metaphlan2
 
 ```
 Example: python3 PStrain.py -p 10 -n 8 --similarity 0.95 -o ./outdir -c config.txt \
@@ -304,6 +341,32 @@ for line in f:
      pickle.dump(popu, f, pickle.HIGHEST_PROTOCOL) 
 ```
 Then please afford the file to PStrain with parameter --prior.
+
+
+
+## Dependencies 
+* Python 3.7.0 or above  
+* Python libraries:  
+    * Numpy  
+    * Scipy  
+    * Pandas  
+    * Pulp
+    * Pysam  
+    * pickle
+
+PStrain needs two database files, one is the metaphlan2 marker gene database, and the other is the prior genotype frequencies database. We have uploaded the two database in the db/ folder to the [Google Drive](https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing), you can directly download the db/ folder, and put it in the same path with the scripts/ folder. PStrain could use them by default. Also, you can appoint the path of these two databases by corresponding arguments --dbdir and --prior.
+
+
+PStrain relies on these software packages. PStrain could use them by default. Also, you can install them by yourself, and appoint them by --samtools, --bowtie2-build, --bowtie2, --metaphlan2, --gatk, and --picard arguments.   
+* Third-party pipelines:
+    * SamTools-1.3.1
+    * bowtie2-2.3.1
+    * metaphlan2/3
+    * GATK-3.5 (java-1.8.0_241)
+    * picard-tools-2.1.0
+
+Note:
+- dependencies can also be obtained at [Zenodo](https://zenodo.org/doi/10.5281/zenodo.10457543).
 
 ## Citation
 Shuai Wang, Yiqi Jiang, Shuaicheng Li, PStrain: An Iterative Microbial Strains Profiling Algorithm for Shotgun Metagenomic Sequencing Data, Bioinformatics, , btaa1056, https://doi.org/10.1093/bioinformatics/btaa1056

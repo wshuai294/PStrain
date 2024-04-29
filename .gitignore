@@ -1,3 +1,11 @@
 #packages
+not_use
+MANIFEST.in
+build
+dist
 db
 db_V30
+mpa_v31_CHOCOPhlAn_201901
+pstrain.egg-info
+test/out
+test/out/*
