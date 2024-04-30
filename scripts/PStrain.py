@@ -34,11 +34,9 @@ def check_input(args, scripts_dir):
         print (f"Metaphlan database {args.bowtie2db} is not detected.")
         print ("obtain the Metaphlan database...")
         if args.metaphlan_version == 3:
-            os.system(f"cd {scripts_dir}/../")
             print (f"bash {scripts_dir}/pstrain_index_metaphlan3.sh")
             os.system(f"bash {scripts_dir}/pstrain_index_metaphlan3.sh")
         elif args.metaphlan_version == 4:
-            os.system(f"cd {scripts_dir}/../")
             print (f"bash {scripts_dir}/pstrain_index_metaphlan4.sh")
             os.system(f"bash {scripts_dir}/pstrain_index_metaphlan4.sh")
         else:

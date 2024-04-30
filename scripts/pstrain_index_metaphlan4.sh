@@ -1,8 +1,11 @@
 #!/bin/bash
 
-mkdir mpa_vJun23_CHOCOPhlAnSGB_202403
 
-cd mpa_vJun23_CHOCOPhlAnSGB_202403
+
+script_dir=$(dirname "$0")
+mkdir $script_dir/../mpa_vJun23_CHOCOPhlAnSGB_202403
+
+cd $script_dir/../mpa_vJun23_CHOCOPhlAnSGB_202403
 
 wget http://cmprod1.cibio.unitn.it/biobakery4/metaphlan_databases/mpa_vJun23_CHOCOPhlAnSGB_202403.tar
 tar -xvf mpa_vJun23_CHOCOPhlAnSGB_202403.tar
