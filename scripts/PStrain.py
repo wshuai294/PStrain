@@ -16,7 +16,7 @@ def is_tool(name):
     """Check whether `name` is on PATH and marked as executable."""
     return which(name) is not None
 
-def check_input(args):
+def check_input(args, scripts_dir):
     # if options.r[-3:] == ".gz":
 
     if not os.path.isfile(args.cfgfile):
@@ -101,7 +101,7 @@ def main():
     give metaphlan result file in each line, the order should be the same with config file. In particular, \
     '--tax_lev s' should be added while running metaphlan.",dest='metaphlan_output_files',metavar='',\
         default='')
-        
+
     optional.add_argument("-p", "--proc",help="The number of process to use for parallelizing the whole pipeline, run a sample in each process."\
         ,dest='proc',metavar='',default=1, type=int)
     optional.add_argument("-n", "--nproc",help="The number of CPUs to use for parallelizing the mapping with bowtie2."\
@@ -142,7 +142,7 @@ def main():
     else:
         if not os.path.exists(args.outdir):
             os.system('mkdir '+args.outdir)
-        check_input(args)
+        check_input(args, scripts_dir)
         give_time = datetime.now().strftime("%Y_%m_%d_%H_%M")
         logging.basicConfig(filename = args.outdir +'/'+ 'PStrain_' + give_time + '.log',\
         format='[%(asctime)s-%(filename)s-%(levelname)s:%(message)s]', level = logging.DEBUG,filemode='w')
