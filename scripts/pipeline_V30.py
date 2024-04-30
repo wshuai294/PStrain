@@ -5,6 +5,9 @@ import multiprocessing
 import logging
 from reads_info import reads_info
 
+import pickle
+import bz2
+
 
 def run_metaphlan(metaphlandir,metaphlan,fq1,fq2,nproc,bowtie2,args):
     print ("run metaphlan...")
@@ -34,20 +37,42 @@ def read_metaphlan(metaphlandir,prior_metaphlan_out):
             species_set.append(array[0])
             sp_ra[array[0]]=float(array[2]) 
     return species_set,sp_ra
+def read_metaphlan_pkl(metaphalan_database_pkl):
+    gene_species_dict = {}
+    with bz2.BZ2File(metaphalan_database_pkl, 'r' ) as a:
+        mpa_pkl = pickle.load( a )
+
+    for k, p in mpa_pkl['markers'].items():
+        gene = k
+        species = p['taxon'].split("|")[6]
+        gene_species_dict[gene] = species
+    return gene_species_dict
+
+
 def extract_ref(species_set,refdir,args):
     # dbdir='../db_v20/'
     gene_dict={}
     # species_set=['s__Escherichia_coli']
     metaphalan_database_fna = args.bowtie2db + "/" + args.metaphlan_index + ".fna"
-    gene_species_pair = args.bowtie2db + "/" + args.metaphlan_index + ".gene_species_pair.txt"
-
-    # for line in gzip.open(dbdir+'/species_markers_V30.txt.gz','rt'):
-    for line in open(gene_species_pair,'r'):
-        line=line.strip()
-        array=line.split()
+    metaphalan_database_pkl = args.bowtie2db + "/" + args.metaphlan_index + ".pkl"
+    
+    gene_species_dict = read_metaphlan_pkl(metaphalan_database_pkl)
+    for gene in gene_species_dict:
+        species = gene_species_dict[gene]
         for sp in species_set:
-            if 's__' +array[1]== sp:
-                gene_dict['>'+array[0]]=sp
+            if species == sp:
+                gene_dict['>'+gene]=sp
+
+    # gene_species_pair = args.bowtie2db + "/" + args.metaphlan_index + ".gene_species_pair.txt"
+    # # for line in gzip.open(dbdir+'/species_markers_V30.txt.gz','rt'):
+    # for line in open(gene_species_pair,'r'):
+    #     line=line.strip()
+    #     array=line.split()
+    #     for sp in species_set:
+    #         if 's__' +array[1]== sp:
+    #             gene_dict['>'+array[0]]=sp
+
+
     flag=False
     merged_fh=open(refdir+'/merged_ref.fa','w')
     # for line in gzip.open(dbdir+'/marker_gene_V30.fna.gz','rt'):

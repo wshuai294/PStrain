@@ -2,20 +2,42 @@
 
 ## Quick start
 
+### PStrain with Metaphlan4
+First, get the source code and construct the env
+```
+git clone git@github.com:wshuai294/PStrain.git --depth 1
+cd PStrain/
+conda env create --name pstrain -f pstrain_metaphlan4_env.yml
+conda activate pstrain
+```
+Then get the metaphlan database
+```
+bash scripts/pstrain_index_metaphlan4.sh   #constructing the reference for Metaphlan3 and PStrain
+python3 scripts/PStrain.py --help
+```
+test PStrain by:
+```
+cd test/
+bash test_PStrain_V40.sh  # use Metaphlan 4
+```
+
 ### PStrain with Metaphlan3
+First, get the source code and construct the env
 ```
 git clone git@github.com:wshuai294/PStrain.git --depth 1
 cd PStrain/
 conda env create --name pstrain3 -f pstrain_metaphlan3_env.yml
 conda activate pstrain3
-
-bash scripts/pstrain_index_metaphlan3.sh   #constructing the reference for Metaphlan3 and PStrain
-python3 scripts/PStrain_V30.py --help
 ```
-test PStrain (with Metaphlan3) by:
+Then get the metaphlan database
+```
+bash scripts/pstrain_index_metaphlan3.sh   #constructing the reference for Metaphlan3 and PStrain
+python3 scripts/PStrain.py --help
+```
+test PStrain by:
 ```
 cd test/
-bash test_PStrain_V30.sh
+bash test_PStrain_V30.sh  # use Metaphlan 3
 ```
 
 
@@ -26,7 +48,7 @@ cd PStrain/
 
 conda env create --name pstrain2 -f pstrain_metaphlan2_env.yml
 conda activate pstrain2
-python3 scripts/PStrain.py -h
+python3 scripts/PStrain_m2.py -h
 ```
 Download `db/` and `packages/` from [Google Drive](https://drive.google.com/drive/folders/1NgBNlfduLwG61P3JMBZts6pVUJn3UR8n?usp=sharing) or [Zenodo](https://zenodo.org/doi/10.5281/zenodo.10457543), and put them in the same path with the scripts/ folder. Also, you can appoint the path of the dependencies by `--dbdir`, `--prior` and `--metaphlan2`. 
 
@@ -42,17 +64,20 @@ bash test_run.sh
 ### Main functions
 | Scripts | Description |
 | --- | --- |
-|scripts/PStrain_V30.py| Strain profiling based on the Metaphlan3|
-|scripts/PStrain.py| Strain profiling based on the Metaphlan2|
+|scripts/PStrain.py| Strain profiling based on the Metaphlan4 or Metaphlan3|
+|scripts/PStrain_m2.py| Strain profiling based on the Metaphlan2|
+|scripts/pstrain_index_metaphlan4.sh| collect the Metaphlan4 database and build the bowtie2 index |
+|scripts/pstrain_index_metaphlan3.sh| collect the Metaphlan3 database and build the bowtie2 index |
 |scripts/single_species.py| phase variants for a single genome, based on the BAM and VCF file|
 |scripts/merge.py| Merge the strain results for downstream analyses  |
 
 
-### Run PStrain based on Metaphlan3
+### Run PStrain based on Metaphlan4 or Metaphlan3
 ```
-usage: python3 PStrain_V30.py [options] -c/--conf <config file> -o/--outdir <output directory> --bowtie2db <metaphlan database> -x <metaphlan db index>
+usage: python3 PStrain.py [options] -c/--conf <config file> -o/--outdir <output directory> --bowtie2db <metaphlan database> -x <metaphlan db index>
 
-    Example: python3 PStrain_V30.py -c config.txt -o outdir/ --bowtie2db ../mpa_v31_CHOCOPhlAn_201901/ -x mpa_v31_CHOCOPhlAn_201901
+    Example: python3 PStrain.py -c config.txt -o out --bowtie2db ../mpa_vOct22_CHOCOPhlAnSGB_202403/ -x mpa_vOct22_CHOCOPhlAnSGB_202403 # Metaphlan 4
+             python3 PStrain_V30.py -c config.txt -o outdir/ --bowtie2db ../mpa_v31_CHOCOPhlAn_201901/ -x mpa_v31_CHOCOPhlAn_201901 # Metaphlan 3
 
     The config file should follow the format:
 
@@ -66,88 +91,73 @@ usage: python3 PStrain_V30.py [options] -c/--conf <config file> -o/--outdir <out
     fq2: [reverse/mate reads fastq]
     ...
 
-    Help information can be found by python3 PStrain_V30.py -h/--help, config file format for single end reads , and additional information can be found    in README.MD or https://github.com/wshuai294/PStrain.
+    Help information can be found by python3 PStrain.py -h/--help, config file format for single end reads , and additional information can be found    in README.MD or https://github.com/wshuai294/PStrain.
 
 
 PStrain: profile strains in shotgun metagenomic sequencing reads.
 
 required arguments:
-  -c , --conf           The configuration file of the input samples. (default:
-                        None)
+  -c , --conf           The configuration file of the input samples. (default: None)
   -o , --outdir         The output directory. (default: None)
-  --bowtie2db           Path to metaphlan bowtie2db. (default: /home/wangshuai
-                        /softwares/PStrain/scripts/../mpa_v31_CHOCOPhlAn_20190
-                        1)
+  --bowtie2db           Path to metaphlan bowtie2db. (default:
+                        /home/wangshuai/softwares/PStrain/scripts/../mpa_vJun23_CHOCOPhlAnSGB_202403)
   -x , --metaphlan_index
-                        Path to metaphlan bowtie2db index. (default:
-                        mpa_v31_CHOCOPhlAn_201901)
+                        metaphlan bowtie2db index. (default: mpa_vJun23_CHOCOPhlAnSGB_202403)
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
-  -p , --proc           The number of process to use for parallelizing the
-                        whole pipeline, run a sample in each process.
-                        (default: 1)
-  -n , --nproc          The number of CPUs to use for parallelizing the
-                        mapping with bowtie2. (default: 1)
-  -w , --weight         The weight of genotype frequencies while computing
-                        loss, then the weight of linked read type frequencies
-                        is 1-w. The value is between 0~1. (default: 0.3)
-  --lambda1             The weight of prior knowledge while rectifying
-                        genotype frequencies. The value is between 0~1.
-                        (default: 0.0)
-  --lambda2             The weight of prior estimation while rectifying second
-                        order genotype frequencies. The value is between 0~1.
-                        (default: 0.0)
-  --species_dp          The minimum depth of species to be considered in
-                        strain profiling step (default is 5). (default: 5)
-  --snp_ratio           The SNVs of which the depth are less than the specific
-                        ratio of the species's mean depth would be removed.
-                        (default: 0.45)
-  --qual                The minimum quality score of SNVs to be considered in
-                        strain profiling step. (default: 20)
-  --similarity          The similarity cutoff of hierachical clustering in
-                        merge step. (default: 0.95)
-  --elbow               The cutoff of elbow method while identifying strains
-                        number. If the loss reduction ratio is less than the
-                        cutoff, then the strains number is determined.
-                        (default: 0.24)
+  --metaphlan_version   Metaphlan version [3 or 4]. Used to download the corresponding database. If you build the
+                        metaphlan database yourself, just ignore this. (default: 4)
   --bowtie2             Path to bowtie2 binary. (default: bowtie2)
   --bowtie2-build       Path to bowtie2 binary. (default: bowtie2-build)
   --samtools            Path to samtools binary. (default: samtools)
   --metaphlan           Path to metaphlan. (default: metaphlan)
   --metaphlan_output_files
-                        If you have run metaphlan already, give metaphlan
-                        result file in each line, the order should be the same
-                        with config file. In particular, '--tax_lev s' should
-                        be added while running metaphlan. (default: )
-  --gatk                Path to gatk binary. (default: /home/wangshuai/softwar
-                        es/PStrain/scripts//GenomeAnalysisTK.jar)
-  --picard              Path to picard binary. (default:
-                        /home/wangshuai/softwares/PStrain/scripts//picard.jar)
-  --prior               The file of prior knowledge of genotype frequencies in
-                        the population. Not providing this is also ok.
-                        (default: None)
+                        If you have run metaphlan already, give metaphlan result file in each line, the order should be
+                        the same with config file. In particular, '--tax_lev s' should be added while running
+                        metaphlan. (default: )
+  -p , --proc           The number of process to use for parallelizing the whole pipeline, run a sample in each
+                        process. (default: 1)
+  -n , --nproc          The number of CPUs to use for parallelizing the mapping with bowtie2. (default: 1)
+  -w , --weight         The weight of genotype frequencies while computing loss, then the weight of linked read type
+                        frequencies is 1-w. The value is between 0~1. (default: 0.3)
+  --lambda1             The weight of prior knowledge while rectifying genotype frequencies. The value is between 0~1.
+                        (default: 0.0)
+  --lambda2             The weight of prior estimation while rectifying second order genotype frequencies. The value is
+                        between 0~1. (default: 0.0)
+  --species_dp          The minimum depth of species to be considered in strain profiling step (default is 5).
+                        (default: 5)
+  --snp_ratio           The SNVs of which the depth are less than the specific ratio of the species's mean depth would
+                        be removed. (default: 0.45)
+  --qual                The minimum quality score of SNVs to be considered in strain profiling step. (default: 20)
+  --similarity          The similarity cutoff of hierachical clustering in merge step. (default: 0.95)
+  --elbow               The cutoff of elbow method while identifying strains number. If the loss reduction ratio is
+                        less than the cutoff, then the strains number is determined. (default: 0.24)
+  --gatk                Path to gatk binary. (default: /home/wangshuai/softwares/PStrain/scripts//GenomeAnalysisTK.jar)
+  --picard              Path to picard binary. (default: /home/wangshuai/softwares/PStrain/scripts//picard.jar)
+  --prior               The file of prior knowledge of genotype frequencies in the population. Not providing this is
+                        also ok. (default: None)
 ```
 
 If you have run metaphlan3 already for each file, to save runtime, you can build a file to record 
 the metaphlan3 resultfile of each sample in each line (In particular,  `--tax_lev s` should be added while running metaphlan3.). 
-Please afford this file to `PStrain_V30.py` with the parameter `--metaphlan3_output_files`.
+Please afford this file to `PStrain.py` with the parameter `--metaphlan_output_files`.
 The file should be like
 ```
-sample1_metaphlan3_output.txt
-sample2_metaphlan3_output.txt
-sample3_metaphlan3_output.txt
+sample1_metaphlan_output.txt
+sample2_metaphlan_output.txt
+sample3_metaphlan_output.txt
 ...
 ``` 
-Then PStrain will skip running metaphlan3, and use the existing metaphlan3 result files.
+Then PStrain will skip running metaphlan, and use the existing metaphlan result files.
 ```
-python3 PStrain_V30.py --metaphlan3_output_files exisiting_metaphlan3_results.txt -c test.config -o test_dir 
+python3 PStrain.py --metaphlan_output_files exisiting_metaphlan_results.txt -c test.config -o test_dir 
 ```
 
 
 
-For metaphlan3, we have not built prior genotype frequencies database which will not impact the performance very much. So just ignore --prior parameter. ALso, you can build a prior genotype frequencies database by yourself. I will show how to do this in the following section.
-In this way, PStrain will run Metaphlan3 to find the species profile in the sample and profile the strains in each species.
+For metaphlan3/4, we have not built prior genotype frequencies database which will not impact the performance very much. So just ignore --prior parameter. Also, you can build a prior genotype frequencies database by yourself. I will show how to do this in the following section.
+In this way, PStrain will run Metaphlan to find the species profile in the sample and profile the strains in each species.
 
 
 
@@ -156,7 +166,7 @@ In this way, PStrain will run Metaphlan3 to find the species profile in the samp
 ### Run PStrain based on Metaphlan2
 Example:
 ```
-Example: python3 PStrain.py -p 10 -n 8 --similarity 0.95 -o ./outdir -c config.txt \
+Example: python3 PStrain_m2.py -p 10 -n 8 --similarity 0.95 -o ./outdir -c config.txt \
 --dbdir /home/wangshuai/strain/00.simulation/15.needle/db \
 --prior /home/wangshuai/strain/00.simulation/15.needle/db/prior_beta.pickle\
 --metaphlan2  /path-to/metaphlan2

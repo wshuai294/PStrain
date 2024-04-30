@@ -1,1 +1,1 @@
-python3 ../scripts/PStrain.py -c config.txt -o out
+python3 ../scripts/PStrain_m2.py -c config.txt -o out
