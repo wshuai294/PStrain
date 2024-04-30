@@ -5,45 +5,45 @@
 ### PStrain with Metaphlan4
 First, get the source code and construct the env
 ```
-git clone git@github.com:wshuai294/PStrain.git --depth 1
+git clone https://github.com/wshuai294/PStrain.git --depth 1
 cd PStrain/
 conda env create --name pstrain -f pstrain_metaphlan4_env.yml
 conda activate pstrain
 ```
 Then get the metaphlan database
 ```
-bash scripts/collect_metaphlan_datbase.sh -x mpa_vOct22_CHOCOPhlAnSGB_202403 -m 4 -d ./   #constructing the reference for Metaphlan3 and PStrain
+bash scripts/collect_metaphlan_datbase.sh -x mpa_vOct22_CHOCOPhlAnSGB_202403 -m 4 -d ./   #constructing the reference for Metaphlan4 
 python3 scripts/PStrain.py --help
 ```
 test PStrain by:
 ```
 cd test/
-bash test_PStrain_V40.sh  # use Metaphlan 4
+bash test_PStrain_V40.sh  # remember edit the --bowtie2db and -x if you have downloaded the database yourself.
 ```
 
 ### PStrain with Metaphlan3
 First, get the source code and construct the env
 ```
-git clone git@github.com:wshuai294/PStrain.git --depth 1
+git clone https://github.com/wshuai294/PStrain.git --depth 1
 cd PStrain/
 conda env create --name pstrain3 -f pstrain_metaphlan3_env.yml
 conda activate pstrain3
 ```
 Then get the metaphlan database
 ```
-bash scripts/collect_metaphlan_datbase.sh -x mpa_v31_CHOCOPhlAn_201901 -m 3 -d ./   #constructing the reference for Metaphlan3 and PStrain
+bash scripts/collect_metaphlan_datbase.sh -x mpa_v31_CHOCOPhlAn_201901 -m 3 -d ./   #constructing the reference for Metaphlan3 
 python3 scripts/PStrain.py --help
 ```
 test PStrain by:
 ```
 cd test/
-bash test_PStrain_V30.sh  # use Metaphlan 3
+bash test_PStrain_V30.sh  # remember edit the --bowtie2db and -x if you have downloaded the database yourself.
 ```
 
 
 ### PStrain with Metaphlan2
 ```
-git clone git@github.com:wshuai294/PStrain.git --depth 1
+git clone https://github.com/wshuai294/PStrain.git --depth 1
 cd PStrain/
 
 conda env create --name pstrain2 -f pstrain_metaphlan2_env.yml
@@ -76,7 +76,7 @@ bash test_run.sh
 usage: python3 PStrain.py [options] -c/--conf <config file> -o/--outdir <output directory> --bowtie2db <metaphlan database> -x <metaphlan db index>
 
     Example: python3 PStrain.py -c config.txt -o out --bowtie2db ../mpa_vOct22_CHOCOPhlAnSGB_202403/ -x mpa_vOct22_CHOCOPhlAnSGB_202403 # Metaphlan 4
-             python3 PStrain_V30.py -c config.txt -o outdir/ --bowtie2db ../mpa_v31_CHOCOPhlAn_201901/ -x mpa_v31_CHOCOPhlAn_201901 # Metaphlan 3
+             python3 PStrain.py --metaphlan_version 3 -c config.txt -o outdir/ --bowtie2db ../mpa_v31_CHOCOPhlAn_201901/ -x mpa_v31_CHOCOPhlAn_201901 # Metaphlan 3
 
     The config file should follow the format:
 
