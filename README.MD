@@ -12,7 +12,7 @@ conda activate pstrain
 ```
 Then get the metaphlan database
 ```
-bash scripts/pstrain_index_metaphlan4.sh   #constructing the reference for Metaphlan3 and PStrain
+bash scripts/collect_metaphlan_datbase.sh -x mpa_vOct22_CHOCOPhlAnSGB_202403 -m 4 -d ./   #constructing the reference for Metaphlan3 and PStrain
 python3 scripts/PStrain.py --help
 ```
 test PStrain by:
@@ -31,7 +31,7 @@ conda activate pstrain3
 ```
 Then get the metaphlan database
 ```
-bash scripts/pstrain_index_metaphlan3.sh   #constructing the reference for Metaphlan3 and PStrain
+bash scripts/collect_metaphlan_datbase.sh -x mpa_v31_CHOCOPhlAn_201901 -m 3 -d ./   #constructing the reference for Metaphlan3 and PStrain
 python3 scripts/PStrain.py --help
 ```
 test PStrain by:
@@ -66,8 +66,7 @@ bash test_run.sh
 | --- | --- |
 |scripts/PStrain.py| Strain profiling based on the Metaphlan4 or Metaphlan3|
 |scripts/PStrain_m2.py| Strain profiling based on the Metaphlan2|
-|scripts/pstrain_index_metaphlan4.sh| collect the Metaphlan4 database and build the bowtie2 index |
-|scripts/pstrain_index_metaphlan3.sh| collect the Metaphlan3 database and build the bowtie2 index |
+|scripts/collect_metaphlan_datbase.sh| collect the Metaphlan4/3 database and build the bowtie2 index |
 |scripts/single_species.py| phase variants for a single genome, based on the BAM and VCF file|
 |scripts/merge.py| Merge the strain results for downstream analyses  |
 
@@ -100,9 +99,9 @@ required arguments:
   -c , --conf           The configuration file of the input samples. (default: None)
   -o , --outdir         The output directory. (default: None)
   --bowtie2db           Path to metaphlan bowtie2db. (default:
-                        /home/wangshuai/softwares/PStrain/scripts/../mpa_vJun23_CHOCOPhlAnSGB_202403)
+                        /home/wangshuai/softwares/PStrain/scripts/../mpa_vOct22_CHOCOPhlAnSGB_202403)
   -x , --metaphlan_index
-                        metaphlan bowtie2db index. (default: mpa_vJun23_CHOCOPhlAnSGB_202403)
+                        metaphlan bowtie2db index. (default: mpa_vOct22_CHOCOPhlAnSGB_202403)
 
 options:
   -h, --help            show this help message and exit

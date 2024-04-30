@@ -32,16 +32,17 @@ def check_input(args, scripts_dir):
 
     if not os.path.isdir(args.bowtie2db):
         print (f"Metaphlan database {args.bowtie2db} is not detected.")
-        print ("obtain the Metaphlan database...")
-        if args.metaphlan_version == 3:
-            print (f"bash {scripts_dir}/pstrain_index_metaphlan3.sh")
-            os.system(f"bash {scripts_dir}/pstrain_index_metaphlan3.sh")
-        elif args.metaphlan_version == 4:
-            print (f"bash {scripts_dir}/pstrain_index_metaphlan4.sh")
-            os.system(f"bash {scripts_dir}/pstrain_index_metaphlan4.sh")
-        else:
-            print ("wrong value for --metaphlan_version")
-            sys.exit(1)
+        print ("obtain the Metaphlan database...\n")
+        command = f"bash {scripts_dir}/collect_metaphlan_datbase.sh -x {args.metaphlan_index} -d {args.bowtie2db} -m {args.metaphlan_version}"
+
+        print (command)
+        os.system(command)
+        # elif args.metaphlan_version == 4:
+        #     print (f"bash {scripts_dir}/pstrain_index_metaphlan4.sh")
+        #     os.system(f"bash {scripts_dir}/pstrain_index_metaphlan4.sh")
+        # else:
+        #     print ("wrong value for --metaphlan_version")
+        #     sys.exit(1)
 
     ref = args.bowtie2db + "/" + args.metaphlan_index + ".fna"
     if not os.path.isfile(ref):
