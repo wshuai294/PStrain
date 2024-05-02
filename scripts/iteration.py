@@ -89,10 +89,20 @@ def alpha_step(delta_set,geno_set,k,answer_index,beta_set,share_set,weight):
 
     prob+=lost,"total lost"
     prob.solve()
-    alpha = []
+
+    # alpha = []
+    # for i in prob.variables():
+    #     if 'alpha' in i.name:
+    #          alpha.append(i.varValue)
+
+    alpha = np.empty(k) # avoid index ambiguity
     for i in prob.variables():
         if 'alpha' in i.name:
-             alpha.append(i.varValue)
+            index = int(i.name.split("_")[1])
+            # print (i.name, i.varValue)
+            alpha[index] = i.varValue
+    # print (alpha)
+
     return alpha
 
 def index2seq(strain_number,locus_index):
