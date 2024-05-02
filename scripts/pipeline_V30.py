@@ -13,8 +13,12 @@ def run_metaphlan(metaphlandir,metaphlan,fq1,fq2,nproc,bowtie2,args):
     print ("run metaphlan...")
     metaphlan_file=metaphlandir+'/metaphlan_output.txt'
     if not os.path.isfile(metaphlan_file) or os.stat(metaphlan_file).st_size == 0:
-        metaphlan_order='%s %s,%s --input_type fastq --bowtie2db %s -x %s --tax_lev s --bowtie2_exe %s --nproc %s \
-        --bowtie2out %s/bowtie.out.bz2 >%s/metaphlan_output.txt'%(metaphlan,fq1,fq2,args.bowtie2db, args.metaphlan_index,bowtie2,nproc,metaphlandir,metaphlandir)
+        if fq2=='single_end':
+            metaphlan_order='%s %s --input_type fastq --bowtie2db %s -x %s --tax_lev s --bowtie2_exe %s --nproc %s \
+            --bowtie2out %s/bowtie.out.bz2 >%s/metaphlan_output.txt'%(metaphlan,fq1,args.bowtie2db, args.metaphlan_index,bowtie2,nproc,metaphlandir,metaphlandir)
+        else:
+            metaphlan_order='%s %s,%s --input_type fastq --bowtie2db %s -x %s --tax_lev s --bowtie2_exe %s --nproc %s \
+            --bowtie2out %s/bowtie.out.bz2 >%s/metaphlan_output.txt'%(metaphlan,fq1,fq2,args.bowtie2db, args.metaphlan_index,bowtie2,nproc,metaphlandir,metaphlandir)          
         print (metaphlan_order, "\n")
         os.system(metaphlan_order)
         os.system('rm %s/bowtie.out.bz2'%(metaphlandir))
@@ -22,20 +26,24 @@ def run_metaphlan(metaphlandir,metaphlan,fq1,fq2,nproc,bowtie2,args):
     else:
         logging.info('Metaphlan result exists already.')
 def read_metaphlan(metaphlandir,prior_metaphlan_out):
+    
     if prior_metaphlan_out == '':
         metaphlan_file=metaphlandir+'/metaphlan_output.txt'
     else:
         metaphlan_file = prior_metaphlan_out
+    print ("read_metaphlan", metaphlan_file)
     species_set=[]
     sp_ra={}
-    for line in open(metaphlan_file,'r'):
+    f = open(metaphlan_file,'r')
+    for line in f:
         line=line.strip()
         if line[0] == '#':
             continue
-        array = line.split()
+        array = line.split("\t")
         if float(array[2]) > 0.05:
             species_set.append(array[0])
             sp_ra[array[0]]=float(array[2]) 
+    f.close()
     return species_set,sp_ra
 def read_metaphlan_pkl(metaphalan_database_pkl):
     gene_species_dict = {}

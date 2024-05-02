@@ -10,7 +10,10 @@ def run_metaphlan2(metaphlan2dir,metaphlan2,fq1,fq2,nproc,bowtie2):
     print ("run metaphlan...")
     metaphlan2_file=metaphlan2dir+'/metaphlan2_output.txt'
     if not os.path.isfile(metaphlan2_file) or os.stat(metaphlan2_file).st_size == 0:
-        metaphlan2_order='python3 %s %s,%s --input_type fastq --bowtie2_exe %s --nproc %s --bowtie2out %s/bowtie.out.bz2 >%s/metaphlan2_output.txt'%(metaphlan2,fq1,fq2,bowtie2,nproc,metaphlan2dir,metaphlan2dir)
+        if fq2=='single_end':
+            metaphlan2_order='python3 %s %s --input_type fastq --bowtie2_exe %s --nproc %s --bowtie2out %s/bowtie.out.bz2 >%s/metaphlan2_output.txt'%(metaphlan2,fq1,bowtie2,nproc,metaphlan2dir,metaphlan2dir)
+        else:
+            metaphlan2_order='python3 %s %s,%s --input_type fastq --bowtie2_exe %s --nproc %s --bowtie2out %s/bowtie.out.bz2 >%s/metaphlan2_output.txt'%(metaphlan2,fq1,fq2,bowtie2,nproc,metaphlan2dir,metaphlan2dir)
         # metaphlan2_order='%s %s,%s --input_type fastq --bowtie2_exe %s --nproc %s --bowtie2out %s/bowtie.out.bz2 >%s/metaphlan2_output.txt'%(metaphlan2,fq1,fq2,bowtie2,nproc,metaphlan2dir,metaphlan2dir)
         print (metaphlan2_order)
         os.system(metaphlan2_order)

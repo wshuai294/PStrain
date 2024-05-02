@@ -1,0 +1,4 @@
+//
+sample : SRR1761735
+fq1 : /home/wangshuai/softwares/PStrain/not_use/SRR1761735/SRR1761735.fastq
+fq2 : 

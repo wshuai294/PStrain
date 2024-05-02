@@ -58,6 +58,8 @@ cd test/
 bash test_run.sh
 ```
 
+Note:
+- PStrain supports both single-end and paired-end reads.
 
 ## Basic Usage  
 
@@ -225,6 +227,18 @@ optional arguments:
                     (default: False)
 ```
 
+### Run PStrain with single-end data
+To use single-end data, the only difference is in the config file, just leave the `fq2:` line empty. An config example for single-end data is:
+```
+//
+sample: [sample1_ID]
+fq1: [single-end reads fastq]
+fq2: 
+//
+sample: [sample2_ID]
+fq1: [single-end reads fastq]
+fq2: 
+```
 
 ## Interpret output
 In the output directory specified by `-o`, there are directories for each sample named by sample ID and one directory named merge.  
