@@ -32,6 +32,10 @@ def read_metaphlan(metaphlandir,prior_metaphlan_out):
     else:
         metaphlan_file = prior_metaphlan_out
     print ("read_metaphlan", metaphlan_file)
+    if not os.path.isfile(metaphlan_file) or os.stat(metaphlan_file).st_size == 0:
+        print (f"Error: {metaphlan_file} is empty, you might fail to run Metaphlan. Stop!")
+        sys.exit(1)
+
     species_set=[]
     sp_ra={}
     f = open(metaphlan_file,'r')
@@ -63,7 +67,14 @@ def extract_ref(species_set,refdir,args):
     # species_set=['s__Escherichia_coli']
     metaphalan_database_fna = args.bowtie2db + "/" + args.metaphlan_index + ".fna"
     metaphalan_database_pkl = args.bowtie2db + "/" + args.metaphlan_index + ".pkl"
-    
+    if not os.path.isfile(metaphalan_database_pkl):
+        print ("cannot find", metaphalan_database_pkl)
+        metaphalan_database_pkl = args.bowtie2db + "/" + "_".join(args.metaphlan_index.split("_")[:-1]) + ".pkl"
+        print ("try to find ", metaphalan_database_pkl)
+
+        if not os.path.isfile(metaphalan_database_pkl):
+            print ("also cannot find", metaphalan_database_pkl, "stop")
+            sys.exit(0)
     gene_species_dict = read_metaphlan_pkl(metaphalan_database_pkl)
     for gene in gene_species_dict:
         species = gene_species_dict[gene]
