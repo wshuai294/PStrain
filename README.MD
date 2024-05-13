@@ -27,7 +27,7 @@ conda activate pstrain
 ```
 or install it in an existing environment:
 ```
-conda install -c bioconda pstrain
+conda install bioconda::pstrain
 ```
 
 ### PStrain with Metaphlan3
