@@ -20,6 +20,15 @@ test PStrain by:
 cd test/
 bash test_PStrain_V40.sh  # remember edit the --bowtie2db and -x if you have downloaded the database yourself.
 ```
+Also, you can install it using Bioconda directly by:
+```
+conda create --name pstrain -c bioconda -c conda-forge pstrain
+conda activate pstrain
+```
+or install it in an existing environment:
+```
+conda install -c bioconda pstrain
+```
 
 ### PStrain with Metaphlan3
 First, get the source code and construct the env
