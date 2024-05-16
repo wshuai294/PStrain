@@ -304,10 +304,10 @@ gi|545276179|ref|NZ_KE701962.1|:c548151-546829	310	A	T	0	0	1	0	1
 gi|545276179|ref|NZ_KE701962.1|:c548151-546829	312	C	A	1	1	1	0	0
 ...
 ```
-Gene, Locus, Ref, Alt clolumns represent the locus, following columns means the composition of the consensus sequence of each cluster.
+Gene, Locus, Ref, and Alt columns represent the locus, following columns mean the composition of the consensus sequence of each cluster.
 
 ## Analyzing the results of PStrain
-First, we can use merge.py cluster the strains obtained from all the 
+First, we can use merge.py to cluster the strains obtained from all the 
 samples with user-defined parameters.
 ```
 usage: python3 merge.py [options] -c/--conf <config file> -o/--outdir <output directory>
@@ -322,7 +322,10 @@ optional arguments:
   -h, --help      show this help message and exit
   --similarity    The similarity cutoff of hierachical clustering in merge step (default is 0.95).
 ```
-Furthermore, we can adopt [**PStrain-tracer**](https://github.com/deepomicslab/PStrain-tracer) for downstream analysis and visulization.
+Furthermore, we can adopt [**PStrain-tracer**](https://github.com/deepomicslab/PStrain-tracer) for downstream analysis and visualization.
+
+## Assign the GenBank ID for identified strains
+Please refer to [**PStrain-tracer**](https://github.com/deepomicslab/PStrain-tracer).
 
 ## Single Species Mode
 If there is only one species, you can map reads and call SNPs by yourself. After that, you can use single_species.py from scripts/ folder to profile strains.
